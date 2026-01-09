@@ -1,0 +1,47 @@
+title: Quarterly Business Review
+subtitle: Q4 2024 Results
+
+slides:
+  - type: section
+    title: Executive Summary
+
+  - type: content
+    title: Key Achievements
+    bullets:
+      - Revenue grew 25% year-over-year
+      - Customer satisfaction at all-time high (94%)
+      - Launched 3 new product lines
+      - Expanded to 5 new markets
+    note: Focus on the revenue growth during presentation
+
+  - type: table
+    title: Financial Overview
+    headers: [Metric, Q3, Q4, Change]
+    data:
+      - [Revenue, "$2.1M", "$2.6M", "+24%"]
+      - [Expenses, "$1.4M", "$1.5M", "+7%"]
+      - [Net Profit, "$0.7M", "$1.1M", "+57%"]
+      - [Headcount, "45", "52", "+16%"]
+
+  - type: chart
+    title: Revenue by Region
+    chart_type: bar
+    categories: [North America, Europe, Asia, Other]
+    series:
+      Q3 2024: [1200, 500, 300, 100]
+      Q4 2024: [1400, 650, 400, 150]
+
+  - type: section
+    title: Looking Ahead
+
+  - type: content
+    title: 2025 Priorities
+    bullets:
+      - Achieve $15M annual revenue
+      - Launch mobile application
+      - Enter Latin American market
+      - Hire 30 additional team members
+
+  - type: title
+    title: Thank You
+    subtitle: Questions?

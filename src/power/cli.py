@@ -1,0 +1,429 @@
+"""CLI interface for Power presentation generator."""
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+from typing import Any
+
+import click
+import yaml
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+from rich.tree import Tree
+
+from power.core import PowerPresentation
+from power.styles import BRAND, FONTS
+
+console = Console()
+
+
+@click.group()
+@click.version_option(prog_name="power")
+def main():
+    """Power - Generate PowerPoint presentations from the command line.
+
+    A CLI tool for creating and manipulating PowerPoint slide decks
+    programmatically. Supports templates, YAML/JSON input, and various
+    slide types including titles, content, tables, and charts.
+
+    Examples:
+
+        # Create a simple presentation
+        power create output.pptx --title "My Presentation"
+
+        # Use a template
+        power create output.pptx --template Galaxy.pptx --title "Themed Deck"
+
+        # Generate from YAML/JSON file
+        power generate slides.yaml -o presentation.pptx
+
+        # Inspect a template
+        power inspect Galaxy.pptx
+
+        # Create presentation interactively
+        power new
+    """
+    pass
+
+
+@main.command()
+@click.argument("output", type=click.Path())
+@click.option("-t", "--template", type=click.Path(exists=True), help="Template .pptx file")
+@click.option("--title", default="Untitled Presentation", help="Presentation title")
+@click.option("--subtitle", default="", help="Presentation subtitle")
+@click.option("--author", default="", help="Author name")
+def create(output: str, template: str | None, title: str, subtitle: str, author: str):
+    """Create a new presentation with a title slide.
+
+    OUTPUT is the path for the generated .pptx file.
+
+    Examples:
+
+        power create my_deck.pptx --title "Q1 Report"
+
+        power create themed.pptx -t Galaxy.pptx --title "Galaxy Theme"
+    """
+    try:
+        ppt = PowerPresentation(template=template)
+
+        # If using template, clear existing slides
+        if template:
+            ppt.clear_slides()
+
+        # Add title slide
+        ppt.add_title_slide(title, subtitle)
+
+        # Add author as note if provided
+        if author:
+            ppt.presentation.core_properties.author = author
+
+        ppt.save(output)
+        console.print(f"[green]Created presentation:[/green] {output}")
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}", err=True)
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("input_file", type=click.Path(exists=True))
+@click.option("-o", "--output", required=True, type=click.Path(), help="Output .pptx file")
+@click.option("-t", "--template", type=click.Path(exists=True), help="Template .pptx file")
+def generate(input_file: str, output: str, template: str | None):
+    """Generate a presentation from a YAML or JSON file.
+
+    INPUT_FILE is a YAML or JSON file describing the slides.
+
+    Example YAML format:
+
+    \b
+        title: My Presentation
+        subtitle: A Great Deck
+        slides:
+          - type: title
+            title: Welcome
+            subtitle: Getting Started
+          - type: content
+            title: Key Points
+            bullets:
+              - First point
+              - Second point
+          - type: section
+            title: Part 2
+          - type: table
+            title: Data Table
+            headers: [Name, Value, Status]
+            data:
+              - [Item A, 100, Active]
+              - [Item B, 200, Pending]
+    """
+    try:
+        # Load input file
+        input_path = Path(input_file)
+        with open(input_path) as f:
+            if input_path.suffix.lower() in (".yaml", ".yml"):
+                spec = yaml.safe_load(f)
+            else:
+                spec = json.load(f)
+
+        ppt = PowerPresentation(template=template)
+
+        if template:
+            ppt.clear_slides()
+
+        # Process slides
+        _build_from_spec(ppt, spec)
+
+        ppt.save(output)
+        console.print(f"[green]Generated presentation:[/green] {output}")
+        console.print(f"  Slides: {ppt.slide_count}")
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}", err=True)
+        sys.exit(1)
+
+
+def _build_from_spec(ppt: PowerPresentation, spec: dict[str, Any]) -> None:
+    """Build presentation from specification dict."""
+    # Handle title slide if top-level title exists
+    if "title" in spec:
+        ppt.add_title_slide(spec.get("title", ""), spec.get("subtitle", ""))
+
+    # Process each slide
+    for slide_spec in spec.get("slides", []):
+        slide_type = slide_spec.get("type", "content")
+
+        if slide_type == "title":
+            ppt.add_title_slide(
+                slide_spec.get("title", ""),
+                slide_spec.get("subtitle", ""),
+            )
+
+        elif slide_type == "section":
+            ppt.add_section_slide(
+                slide_spec.get("title", ""),
+                slide_spec.get("subtitle", ""),
+            )
+
+        elif slide_type == "content":
+            builder = ppt.add_content_slide(
+                slide_spec.get("title", ""),
+                slide_spec.get("bullets"),
+            )
+            if "note" in slide_spec:
+                builder.add_note(slide_spec["note"])
+
+        elif slide_type == "table":
+            builder = ppt.add_slide(5)  # Title only layout
+            builder.set_title(slide_spec.get("title", ""))
+            builder.add_table(
+                slide_spec.get("data", []),
+                slide_spec.get("headers"),
+            )
+
+        elif slide_type == "chart":
+            builder = ppt.add_slide(5)
+            builder.set_title(slide_spec.get("title", ""))
+            chart_type = slide_spec.get("chart_type", "bar")
+            categories = slide_spec.get("categories", [])
+            series = slide_spec.get("series", {})
+
+            if chart_type == "pie":
+                values = list(series.values())[0] if series else []
+                builder.add_pie_chart(categories, values)
+            elif chart_type == "line":
+                builder.add_line_chart(categories, series)
+            else:
+                builder.add_bar_chart(categories, series)
+
+        elif slide_type == "blank":
+            ppt.add_blank_slide()
+
+
+@main.command()
+@click.argument("pptx_file", type=click.Path(exists=True))
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+def inspect(pptx_file: str, as_json: bool):
+    """Inspect a PowerPoint template or presentation.
+
+    Shows available layouts, placeholders, and slide information.
+
+    Examples:
+
+        power inspect Galaxy.pptx
+
+        power inspect template.pptx --json
+    """
+    try:
+        ppt = PowerPresentation(template=pptx_file)
+        info = ppt.get_template_info()
+
+        if as_json:
+            # Convert non-serializable values
+            info["slide_width"] = str(info["slide_width"])
+            info["slide_height"] = str(info["slide_height"])
+            click.echo(json.dumps(info, indent=2))
+            return
+
+        # Rich formatted output
+        console.print()
+        console.print(Panel(f"[bold]{pptx_file}[/bold]", title="PowerPoint Inspection"))
+
+        # Basic info
+        info_table = Table(show_header=False, box=None)
+        info_table.add_row("Slides:", str(info["slide_count"]))
+        info_table.add_row("Layouts:", str(info["layout_count"]))
+        info_table.add_row(
+            "Dimensions:",
+            f"{info['slide_width'].inches:.2f}\" x {info['slide_height'].inches:.2f}\""
+        )
+        console.print(info_table)
+        console.print()
+
+        # Layout tree
+        tree = Tree("[bold]Available Layouts[/bold]")
+        for layout in info["layouts"]:
+            layout_branch = tree.add(f"[cyan]{layout['index']}[/cyan]: {layout['name']}")
+            if layout["placeholders"]:
+                for ph in layout["placeholders"]:
+                    ph_type = ph["type"].replace("PLACEHOLDER_FORMAT_TYPE.", "")
+                    layout_branch.add(f"[dim]idx={ph['idx']}[/dim] {ph['name']} ({ph_type})")
+
+        console.print(tree)
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}", err=True)
+        sys.exit(1)
+
+
+@main.command()
+@click.option("-t", "--template", type=click.Path(exists=True), help="Template .pptx file")
+@click.option("-o", "--output", default="presentation.pptx", help="Output file path")
+def new(template: str | None, output: str):
+    """Interactively create a new presentation.
+
+    Guides you through creating slides one at a time.
+
+    Examples:
+
+        power new
+
+        power new -t Galaxy.pptx -o my_deck.pptx
+    """
+    try:
+        console.print(Panel("[bold]Power - Interactive Presentation Builder[/bold]"))
+
+        ppt = PowerPresentation(template=template)
+        if template:
+            ppt.clear_slides()
+            console.print(f"Using template: [cyan]{template}[/cyan]")
+
+        # Get title
+        title = click.prompt("Presentation title", default="Untitled")
+        subtitle = click.prompt("Subtitle (optional)", default="")
+        ppt.add_title_slide(title, subtitle)
+
+        while True:
+            console.print("\n[bold]Add a slide:[/bold]")
+            console.print("  1. Content slide (bullets)")
+            console.print("  2. Section header")
+            console.print("  3. Blank slide")
+            console.print("  4. Done - save presentation")
+
+            choice = click.prompt("Choice", type=int, default=4)
+
+            if choice == 1:
+                slide_title = click.prompt("Slide title")
+                console.print("Enter bullet points (empty line to finish):")
+                bullets = []
+                while True:
+                    bullet = click.prompt("  -", default="")
+                    if not bullet:
+                        break
+                    bullets.append(bullet)
+                ppt.add_content_slide(slide_title, bullets if bullets else None)
+                console.print("[green]Added content slide[/green]")
+
+            elif choice == 2:
+                section_title = click.prompt("Section title")
+                section_subtitle = click.prompt("Subtitle (optional)", default="")
+                ppt.add_section_slide(section_title, section_subtitle)
+                console.print("[green]Added section slide[/green]")
+
+            elif choice == 3:
+                ppt.add_blank_slide()
+                console.print("[green]Added blank slide[/green]")
+
+            elif choice == 4:
+                break
+
+        ppt.save(output)
+        console.print(f"\n[green]Saved:[/green] {output} ({ppt.slide_count} slides)")
+
+    except click.Abort:
+        console.print("\n[yellow]Cancelled[/yellow]")
+        sys.exit(0)
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}", err=True)
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("pptx_file", type=click.Path(exists=True))
+@click.argument("replacements", nargs=-1)
+@click.option("-o", "--output", required=True, help="Output file path")
+def replace(pptx_file: str, replacements: tuple[str, ...], output: str):
+    """Replace placeholders in a presentation.
+
+    PPTX_FILE is the input presentation.
+    REPLACEMENTS are key=value pairs for {{KEY}} placeholders.
+
+    Examples:
+
+        power replace template.pptx NAME=John DATE=2024-01-01 -o filled.pptx
+
+        power replace report.pptx "TITLE=Q1 Report" -o q1.pptx
+    """
+    try:
+        # Parse replacements
+        replacement_dict = {}
+        for r in replacements:
+            if "=" not in r:
+                raise click.BadParameter(f"Invalid replacement format: {r} (expected KEY=VALUE)")
+            key, value = r.split("=", 1)
+            replacement_dict[f"{{{{{key}}}}}"] = value
+
+        ppt = PowerPresentation(template=pptx_file)
+        ppt.replace_placeholders(replacement_dict)
+        ppt.save(output)
+
+        console.print(f"[green]Replaced {len(replacement_dict)} placeholder(s)[/green]")
+        console.print(f"Saved to: {output}")
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}", err=True)
+        sys.exit(1)
+
+
+@main.command()
+@click.argument("pptx_file", type=click.Path(exists=True))
+@click.argument("slide_index", type=int)
+@click.option("-o", "--output", required=True, help="Output file path")
+def remove(pptx_file: str, slide_index: int, output: str):
+    """Remove a slide from a presentation.
+
+    SLIDE_INDEX is the 0-based index of the slide to remove.
+
+    Examples:
+
+        power remove deck.pptx 2 -o deck_trimmed.pptx
+    """
+    try:
+        ppt = PowerPresentation(template=pptx_file)
+        original_count = ppt.slide_count
+
+        ppt.remove_slide(slide_index)
+        ppt.save(output)
+
+        console.print(f"[green]Removed slide {slide_index}[/green]")
+        console.print(f"Slides: {original_count} -> {ppt.slide_count}")
+
+    except IndexError:
+        console.print(f"[red]Error:[/red] Slide index {slide_index} out of range", err=True)
+        sys.exit(1)
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}", err=True)
+        sys.exit(1)
+
+
+@main.command(name="add")
+@click.argument("pptx_file", type=click.Path(exists=True))
+@click.option("-o", "--output", required=True, help="Output file path")
+@click.option("--title", required=True, help="Slide title")
+@click.option("--bullets", multiple=True, help="Bullet points (can specify multiple)")
+@click.option("--layout", default=1, help="Layout index (default: 1)")
+def add_slide(pptx_file: str, output: str, title: str, bullets: tuple, layout: int):
+    """Add a slide to an existing presentation.
+
+    Examples:
+
+        power add deck.pptx -o updated.pptx --title "New Slide" --bullets "Point 1" --bullets "Point 2"
+    """
+    try:
+        ppt = PowerPresentation(template=pptx_file)
+        ppt.add_content_slide(title, list(bullets) if bullets else None, layout=layout)
+        ppt.save(output)
+
+        console.print(f"[green]Added slide:[/green] {title}")
+        console.print(f"Total slides: {ppt.slide_count}")
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}", err=True)
+        sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
