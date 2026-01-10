@@ -1,6 +1,6 @@
 """Power - A CLI tool for generating PowerPoint presentations."""
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 from power.core import PowerPresentation
 from power.slides import SlideBuilder

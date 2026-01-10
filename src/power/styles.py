@@ -34,30 +34,38 @@ class FontSizes:
 
 @dataclass(frozen=True)
 class SlidePositions:
-    """Standard positioning for slide elements."""
+    """Standard positioning for slide elements.
+
+    Optimized for 16:9 slides (13.333" x 7.5").
+    Content is centered horizontally.
+    """
+
+    # Slide dimensions (16:9)
+    SLIDE_WIDTH = Inches(13.333)
+    SLIDE_HEIGHT = Inches(7.5)
 
     # Title positioning
     TITLE_LEFT = Inches(0.5)
     TITLE_TOP = Inches(0.3)
-    TITLE_WIDTH = Inches(9)
+    TITLE_WIDTH = Inches(12.333)
     TITLE_HEIGHT = Inches(0.8)
 
-    # Content area
-    CONTENT_LEFT = Inches(0.5)
-    CONTENT_TOP = Inches(1.3)
-    CONTENT_WIDTH = Inches(9)
-    CONTENT_HEIGHT = Inches(5.5)
+    # Content area (centered, below title)
+    CONTENT_WIDTH = Inches(11)
+    CONTENT_HEIGHT = Inches(5)
+    CONTENT_LEFT = Inches(1.17)  # (13.333 - 11) / 2
+    CONTENT_TOP = Inches(1.8)
 
-    # Chart area
-    CHART_LEFT = Inches(0.5)
-    CHART_TOP = Inches(1.5)
-    CHART_WIDTH = Inches(9)
+    # Chart area (centered)
+    CHART_WIDTH = Inches(10)
     CHART_HEIGHT = Inches(5)
+    CHART_LEFT = Inches(1.67)  # (13.333 - 10) / 2
+    CHART_TOP = Inches(2.0)
 
-    # Table area
-    TABLE_LEFT = Inches(0.5)
-    TABLE_TOP = Inches(1.5)
-    TABLE_WIDTH = Inches(9)
+    # Table area (centered)
+    TABLE_WIDTH = Inches(10)
+    TABLE_LEFT = Inches(1.67)  # (13.333 - 10) / 2
+    TABLE_TOP = Inches(2.0)
 
 
 # Singleton instances for easy import
