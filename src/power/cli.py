@@ -177,7 +177,8 @@ def _build_from_spec(ppt: PowerPresentation, spec: dict[str, Any]) -> None:
                 builder.add_note(slide_spec["note"])
 
         elif slide_type == "table":
-            builder = ppt.add_slide(5)  # Title only layout
+            content_layout = ppt.find_content_layout()
+            builder = ppt.add_slide(content_layout)
             builder.set_title(slide_spec.get("title", ""))
             builder.add_table(
                 slide_spec.get("data", []),
@@ -185,7 +186,8 @@ def _build_from_spec(ppt: PowerPresentation, spec: dict[str, Any]) -> None:
             )
 
         elif slide_type == "chart":
-            builder = ppt.add_slide(5)
+            content_layout = ppt.find_content_layout()
+            builder = ppt.add_slide(content_layout)
             builder.set_title(slide_spec.get("title", ""))
             chart_type = slide_spec.get("chart_type", "bar")
             categories = slide_spec.get("categories", [])
@@ -404,8 +406,8 @@ def remove(pptx_file: str, slide_index: int, output: str):
 @click.option("-o", "--output", required=True, help="Output file path")
 @click.option("--title", required=True, help="Slide title")
 @click.option("--bullets", multiple=True, help="Bullet points (can specify multiple)")
-@click.option("--layout", default=1, help="Layout index (default: 1)")
-def add_slide(pptx_file: str, output: str, title: str, bullets: tuple, layout: int):
+@click.option("--layout", default=None, type=int, help="Layout index (auto-detect if not specified)")
+def add_slide(pptx_file: str, output: str, title: str, bullets: tuple, layout: int | None):
     """Add a slide to an existing presentation.
 
     Examples:

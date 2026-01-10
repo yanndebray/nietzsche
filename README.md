@@ -5,7 +5,7 @@ A CLI tool for generating PowerPoint presentations programmatically.
 ## Installation
 
 ```bash
-pip install -e .
+pip install nietzsche
 ```
 
 ## Quick Start

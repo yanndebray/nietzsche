@@ -94,6 +94,47 @@ class PowerPresentation:
                 return layout
         raise ValueError(f"Layout '{index_or_name}' not found")
 
+    def find_content_layout(self) -> int:
+        """Find the best layout for content slides (title + content).
+
+        Searches for layouts named 'Title and Content' or similar.
+        Falls back to layout 1 for blank presentations.
+
+        Returns:
+            Layout index for content slides.
+        """
+        # Priority search for content layouts by name
+        content_layout_names = [
+            "title and content",
+            "title & content",
+            "title, content",
+        ]
+
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            name_lower = layout.name.lower()
+            # Exact match first
+            if name_lower in content_layout_names:
+                return i
+            # Partial match: "Title and Content" but not "Title and Content 3" etc
+            if "title and content" in name_lower and name_lower.endswith("content"):
+                return i
+
+        # Fallback: look for layout with TITLE and OBJECT/BODY placeholders
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            has_title = False
+            has_content = False
+            for ph in layout.placeholders:
+                ph_type = str(ph.placeholder_format.type)
+                if "TITLE" in ph_type and "CENTER" not in ph_type:
+                    has_title = True
+                if "OBJECT" in ph_type or "BODY" in ph_type:
+                    has_content = True
+            if has_title and has_content:
+                return i
+
+        # Final fallback: layout 1 (standard for blank presentations)
+        return 1
+
     def add_slide(self, layout: int | str = 6) -> SlideBuilder:
         """Add a new slide and return a SlideBuilder for it.
 
@@ -139,18 +180,20 @@ class PowerPresentation:
         return self.add_title_slide(title, subtitle, layout=2)
 
     def add_content_slide(
-        self, title: str, bullets: list[str] | None = None, layout: int | str = 1
+        self, title: str, bullets: list[str] | None = None, layout: int | str | None = None
     ) -> SlideBuilder:
         """Add a content slide with optional bullet points.
 
         Args:
             title: Slide title.
             bullets: Optional list of bullet points.
-            layout: Layout to use (default: 1 = Title and Content).
+            layout: Layout to use. If None, automatically finds "Title and Content" layout.
 
         Returns:
             SlideBuilder for the new slide.
         """
+        if layout is None:
+            layout = self.find_content_layout()
         builder = self.add_slide(layout)
         builder.set_title(title)
         if bullets:
