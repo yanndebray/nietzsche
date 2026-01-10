@@ -1,4 +1,4 @@
-# Power
+# Nietzsche ⚡Power⚡Point⚡Generator
 
 A CLI tool for generating PowerPoint presentations programmatically.
 

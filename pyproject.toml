@@ -3,14 +3,14 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "power"
-version = "0.1.0"
+name = "nietzsche"
+version = "0.1.1"
 description = "A CLI tool for generating PowerPoint presentations"
 readme = "README.md"
 requires-python = ">=3.9"
-license = {text = "MIT"}
+license = "MIT"
 authors = [
-    {name = "Power CLI"}
+    {name = "Yann Debray"}
 ]
 dependencies = [
     "python-pptx>=1.0.2",
@@ -31,8 +31,6 @@ dev = [
 
 [project.scripts]
 power = "power.cli:main"
-
-[project.entry-points."power.commands"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
