@@ -84,7 +84,7 @@ def create(output: str, template: str | None, title: str, subtitle: str, author:
         console.print(f"[green]Created presentation:[/green] {output}")
 
     except Exception as e:
-        console.print(f"[red]Error:[/red] {e}", err=True)
+        console.print(f"[red]Error:[/red] {e}")
         sys.exit(1)
 
 
@@ -142,7 +142,7 @@ def generate(input_file: str, output: str, template: str | None):
         console.print(f"  Slides: {ppt.slide_count}")
 
     except Exception as e:
-        console.print(f"[red]Error:[/red] {e}", err=True)
+        console.print(f"[red]Error:[/red] {e}")
         sys.exit(1)
 
 
@@ -177,8 +177,8 @@ def _build_from_spec(ppt: PowerPresentation, spec: dict[str, Any]) -> None:
                 builder.add_note(slide_spec["note"])
 
         elif slide_type == "table":
-            content_layout = ppt.find_content_layout()
-            builder = ppt.add_slide(content_layout)
+            title_only_layout = ppt.find_title_only_layout()
+            builder = ppt.add_slide(title_only_layout)
             builder.set_title(slide_spec.get("title", ""))
             builder.add_table(
                 slide_spec.get("data", []),
@@ -186,8 +186,8 @@ def _build_from_spec(ppt: PowerPresentation, spec: dict[str, Any]) -> None:
             )
 
         elif slide_type == "chart":
-            content_layout = ppt.find_content_layout()
-            builder = ppt.add_slide(content_layout)
+            title_only_layout = ppt.find_title_only_layout()
+            builder = ppt.add_slide(title_only_layout)
             builder.set_title(slide_spec.get("title", ""))
             chart_type = slide_spec.get("chart_type", "bar")
             categories = slide_spec.get("categories", [])
@@ -257,7 +257,7 @@ def inspect(pptx_file: str, as_json: bool):
         console.print(tree)
 
     except Exception as e:
-        console.print(f"[red]Error:[/red] {e}", err=True)
+        console.print(f"[red]Error:[/red] {e}")
         sys.exit(1)
 
 
@@ -329,7 +329,7 @@ def new(template: str | None, output: str):
         console.print("\n[yellow]Cancelled[/yellow]")
         sys.exit(0)
     except Exception as e:
-        console.print(f"[red]Error:[/red] {e}", err=True)
+        console.print(f"[red]Error:[/red] {e}")
         sys.exit(1)
 
 
@@ -366,7 +366,7 @@ def replace(pptx_file: str, replacements: tuple[str, ...], output: str):
         console.print(f"Saved to: {output}")
 
     except Exception as e:
-        console.print(f"[red]Error:[/red] {e}", err=True)
+        console.print(f"[red]Error:[/red] {e}")
         sys.exit(1)
 
 
@@ -394,10 +394,10 @@ def remove(pptx_file: str, slide_index: int, output: str):
         console.print(f"Slides: {original_count} -> {ppt.slide_count}")
 
     except IndexError:
-        console.print(f"[red]Error:[/red] Slide index {slide_index} out of range", err=True)
+        console.print(f"[red]Error:[/red] Slide index {slide_index} out of range")
         sys.exit(1)
     except Exception as e:
-        console.print(f"[red]Error:[/red] {e}", err=True)
+        console.print(f"[red]Error:[/red] {e}")
         sys.exit(1)
 
 
@@ -423,7 +423,7 @@ def add_slide(pptx_file: str, output: str, title: str, bullets: tuple, layout: i
         console.print(f"Total slides: {ppt.slide_count}")
 
     except Exception as e:
-        console.print(f"[red]Error:[/red] {e}", err=True)
+        console.print(f"[red]Error:[/red] {e}")
         sys.exit(1)
 
 

@@ -98,11 +98,14 @@ class PowerPresentation:
         """Find the best layout for content slides (title + content).
 
         Searches for layouts named 'Title and Content' or similar.
+        Prefers layouts with OBJECT placeholders over BODY-only.
         Falls back to layout 1 for blank presentations.
 
         Returns:
             Layout index for content slides.
         """
+        import re
+
         # Priority search for content layouts by name
         content_layout_names = [
             "title and content",
@@ -110,26 +113,57 @@ class PowerPresentation:
             "title, content",
         ]
 
+        # First pass: exact name matches
         for i, layout in enumerate(self.presentation.slide_layouts):
             name_lower = layout.name.lower()
-            # Exact match first
             if name_lower in content_layout_names:
                 return i
-            # Partial match: "Title and Content" but not "Title and Content 3" etc
-            if "title and content" in name_lower and name_lower.endswith("content"):
-                return i
 
-        # Fallback: look for layout with TITLE and OBJECT/BODY placeholders
+        # Second pass: "Title and Content" variants (including numbered like "Title and Content 4")
+        # Prefer layouts with OBJECT placeholder
+        candidates = []
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            name_lower = layout.name.lower()
+            if re.match(r"title and content( \d+)?$", name_lower):
+                # Check if it has OBJECT placeholder (best for content)
+                has_object = any(
+                    "OBJECT" in str(ph.placeholder_format.type)
+                    for ph in layout.placeholders
+                )
+                candidates.append((i, has_object))
+
+        # Prefer layouts with OBJECT placeholder
+        for idx, has_object in candidates:
+            if has_object:
+                return idx
+        # If no OBJECT, return first "Title and Content" match
+        if candidates:
+            return candidates[0][0]
+
+        # Third pass: look for layout with TITLE (not CENTER) and OBJECT placeholder
         for i, layout in enumerate(self.presentation.slide_layouts):
             has_title = False
-            has_content = False
+            has_object = False
             for ph in layout.placeholders:
                 ph_type = str(ph.placeholder_format.type)
                 if "TITLE" in ph_type and "CENTER" not in ph_type:
                     has_title = True
-                if "OBJECT" in ph_type or "BODY" in ph_type:
-                    has_content = True
-            if has_title and has_content:
+                if "OBJECT" in ph_type:
+                    has_object = True
+            if has_title and has_object:
+                return i
+
+        # Fourth pass: TITLE + BODY (less ideal but workable)
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            has_title = False
+            has_body = False
+            for ph in layout.placeholders:
+                ph_type = str(ph.placeholder_format.type)
+                if "TITLE" in ph_type and "CENTER" not in ph_type:
+                    has_title = True
+                if "BODY" in ph_type:
+                    has_body = True
+            if has_title and has_body:
                 return i
 
         # Final fallback: layout 1 (standard for blank presentations)
@@ -167,6 +201,79 @@ class PowerPresentation:
             builder.set_subtitle(subtitle)
         return builder
 
+    def find_section_layout(self) -> int:
+        """Find the best layout for section/divider slides.
+
+        Searches for layouts named 'Section Header' or with CENTER_TITLE + SUBTITLE.
+        Falls back to layout 0 (title slide) or 2 for blank presentations.
+
+        Returns:
+            Layout index for section slides.
+        """
+        # First pass: explicit section header layouts
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            name_lower = layout.name.lower()
+            if "section" in name_lower:
+                return i
+
+        # Second pass: look for CENTER_TITLE + SUBTITLE (ideal for sections)
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            has_center_title = False
+            has_subtitle = False
+            for ph in layout.placeholders:
+                ph_type = str(ph.placeholder_format.type)
+                if "CENTER_TITLE" in ph_type:
+                    has_center_title = True
+                if "SUBTITLE" in ph_type:
+                    has_subtitle = True
+            if has_center_title and has_subtitle:
+                return i
+
+        # Third pass: CENTER_TITLE only (still works for sections)
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            for ph in layout.placeholders:
+                if "CENTER_TITLE" in str(ph.placeholder_format.type):
+                    return i
+
+        # Final fallback: layout 2 (standard for blank presentations)
+        return 2
+
+    def find_title_only_layout(self) -> int:
+        """Find a layout with title but no content placeholder.
+
+        Best for slides with custom content like tables and charts.
+        Searches for layouts named 'Title Only' or with TITLE but no OBJECT/BODY.
+
+        Returns:
+            Layout index for title-only slides.
+        """
+        # First pass: explicit "Title Only" layouts (not "Title Only Slide" with CENTER_TITLE)
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            name_lower = layout.name.lower()
+            if name_lower == "title only":
+                return i
+
+        # Second pass: look for layout with TITLE (not CENTER) and NO content placeholders
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            has_title = False
+            has_content = False
+            for ph in layout.placeholders:
+                ph_type = str(ph.placeholder_format.type)
+                if "TITLE" in ph_type and "CENTER" not in ph_type:
+                    has_title = True
+                if any(t in ph_type for t in ["OBJECT", "BODY", "CHART", "TABLE", "PICTURE"]):
+                    has_content = True
+            if has_title and not has_content:
+                return i
+
+        # Third pass: use Blank layout if available
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            if "blank" in layout.name.lower():
+                return i
+
+        # Final fallback: layout 5 (Title Only in standard templates)
+        return min(5, self.layout_count - 1)
+
     def add_section_slide(self, title: str, subtitle: str = "") -> SlideBuilder:
         """Add a section header slide.
 
@@ -177,7 +284,8 @@ class PowerPresentation:
         Returns:
             SlideBuilder for the new slide.
         """
-        return self.add_title_slide(title, subtitle, layout=2)
+        layout = self.find_section_layout()
+        return self.add_title_slide(title, subtitle, layout=layout)
 
     def add_content_slide(
         self, title: str, bullets: list[str] | None = None, layout: int | str | None = None

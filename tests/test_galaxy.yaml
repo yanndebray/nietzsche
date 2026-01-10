@@ -1,0 +1,101 @@
+# Test presentation for Galaxy.pptx template
+# Demonstrates: title, section, content (bullets), tables, charts
+
+title: "Q4 2024 Business Review"
+subtitle: "Strategic Performance Analysis"
+
+slides:
+  # Section divider
+  - type: section
+    title: "Executive Summary"
+    subtitle: "Key highlights from the quarter"
+
+  # Content slide with bullets
+  - type: content
+    title: "Quarter Highlights"
+    bullets:
+      - "Revenue increased 23% year-over-year to $142M"
+      - "Customer acquisition cost reduced by 18%"
+      - "Net Promoter Score reached all-time high of 72"
+      - "Successfully launched 3 new product features"
+      - "Expanded into 5 new international markets"
+    note: "Data sourced from internal financial reports"
+
+  # Table slide
+  - type: table
+    title: "Regional Performance"
+    headers: ["Region", "Revenue ($M)", "Growth %", "Market Share"]
+    data:
+      - ["North America", "68.5", "+15%", "42%"]
+      - ["Europe", "38.2", "+28%", "18%"]
+      - ["Asia Pacific", "24.8", "+45%", "12%"]
+      - ["Latin America", "10.5", "+32%", "8%"]
+
+  # Bar chart slide
+  - type: chart
+    title: "Quarterly Revenue Trend"
+    chart_type: bar
+    categories: ["Q1", "Q2", "Q3", "Q4"]
+    series:
+      "2023": [95, 102, 108, 115]
+      "2024": [112, 125, 134, 142]
+
+  # Section divider
+  - type: section
+    title: "Product Development"
+    subtitle: "Innovation and roadmap"
+
+  # Content slide
+  - type: content
+    title: "Major Product Releases"
+    bullets:
+      - "AI-powered analytics dashboard launched in October"
+      - "Mobile app redesign with 40% faster load times"
+      - "Enterprise SSO integration completed"
+      - "Real-time collaboration features in beta"
+
+  # Line chart slide
+  - type: chart
+    title: "Monthly Active Users Growth"
+    chart_type: line
+    categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+    series:
+      "Users (thousands)": [245, 268, 285, 312, 345, 378, 402, 435, 468, 512, 558, 612]
+
+  # Section divider
+  - type: section
+    title: "Financial Overview"
+    subtitle: "Key metrics and projections"
+
+  # Table slide
+  - type: table
+    title: "P&L Summary (in millions)"
+    headers: ["Category", "Q3 2024", "Q4 2024", "Change"]
+    data:
+      - ["Revenue", "$134.0", "$142.0", "+6.0%"]
+      - ["Gross Profit", "$94.8", "$102.2", "+7.8%"]
+      - ["Operating Expenses", "$72.5", "$74.1", "+2.2%"]
+      - ["Net Income", "$22.3", "$28.1", "+26.0%"]
+
+  # Pie chart slide
+  - type: chart
+    title: "Revenue by Product Line"
+    chart_type: pie
+    categories: ["Enterprise SaaS", "SMB Subscriptions", "Professional Services", "Support Contracts"]
+    series:
+      "Revenue": [58, 25, 12, 5]
+
+  # Content slide
+  - type: content
+    title: "2025 Strategic Priorities"
+    bullets:
+      - "Achieve $200M ARR milestone"
+      - "Launch AI copilot for enterprise customers"
+      - "Expand partner ecosystem to 500+ integrations"
+      - "Reduce churn rate to below 5%"
+      - "IPO readiness assessment by Q3"
+
+  # Section divider
+  - type: section
+    title: "Thank You"
+    subtitle: "Questions and Discussion"

@@ -76,8 +76,11 @@ class SlideBuilder:
         Returns:
             Self for method chaining.
         """
-        if len(self._slide.placeholders) > 1:
+        try:
             self._slide.placeholders[1].text = text
+        except KeyError:
+            # Placeholder 1 doesn't exist in this layout - skip silently
+            pass
         return self
 
     def add_text_box(

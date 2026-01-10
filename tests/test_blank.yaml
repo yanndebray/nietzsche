@@ -1,0 +1,42 @@
+# Test presentation without template (blank/default)
+# Verifies fallback layout detection works
+
+title: "Sample Presentation"
+subtitle: "Testing Default Layouts"
+
+slides:
+  - type: section
+    title: "Introduction"
+    subtitle: "Getting started"
+
+  - type: content
+    title: "Key Points"
+    bullets:
+      - "First bullet point"
+      - "Second bullet point"
+      - "Third bullet point"
+
+  - type: table
+    title: "Sample Data"
+    headers: ["Item", "Value", "Status"]
+    data:
+      - ["A", "100", "Active"]
+      - ["B", "200", "Pending"]
+      - ["C", "300", "Complete"]
+
+  - type: chart
+    title: "Sample Bar Chart"
+    chart_type: bar
+    categories: ["Jan", "Feb", "Mar"]
+    series:
+      "Sales": [10, 20, 30]
+      "Costs": [8, 15, 22]
+
+  - type: chart
+    title: "Sample Pie Chart"
+    chart_type: pie
+    categories: ["Product A", "Product B", "Product C"]
+    series:
+      "Share": [50, 30, 20]
+
+  - type: blank

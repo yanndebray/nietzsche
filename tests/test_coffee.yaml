@@ -1,0 +1,132 @@
+# Test presentation for Coffee.pptx template
+# A coffee-themed business pitch for a specialty coffee franchise
+
+title: "Brew & Beyond"
+subtitle: "Specialty Coffee Franchise Opportunity"
+
+slides:
+  # Section divider
+  - type: section
+    title: "The Opportunity"
+    subtitle: "A $80 billion industry awaits"
+
+  # Content slide with market overview
+  - type: content
+    title: "Specialty Coffee Market"
+    bullets:
+      - "Global specialty coffee market valued at $83.5B in 2024"
+      - "Expected CAGR of 11.3% through 2030"
+      - "Millennials and Gen Z driving premium coffee demand"
+      - "Third-wave coffee culture expanding to suburban markets"
+      - "Work-from-anywhere trend boosting daytime traffic"
+
+  # Bar chart - market growth
+  - type: chart
+    title: "US Coffee Market Growth"
+    chart_type: bar
+    categories: ["2020", "2021", "2022", "2023", "2024"]
+    series:
+      "Traditional ($B)": [42, 44, 46, 48, 50]
+      "Specialty ($B)": [18, 22, 26, 32, 38]
+
+  # Section divider
+  - type: section
+    title: "Our Concept"
+    subtitle: "What makes Brew & Beyond different"
+
+  # Content slide - unique value proposition
+  - type: content
+    title: "The Brew & Beyond Experience"
+    bullets:
+      - "Single-origin beans from partner farms in 6 countries"
+      - "In-house roasting for optimal freshness"
+      - "Trained baristas with certification program"
+      - "Community workspace with bookable meeting pods"
+      - "Eco-friendly operations with zero-waste initiative"
+    note: "Our NPS score averages 78 across existing locations"
+
+  # Table - menu highlights
+  - type: table
+    title: "Signature Menu & Pricing"
+    headers: ["Category", "Signature Item", "Price", "Margin"]
+    data:
+      - ["Espresso", "Ethiopian Sidamo Shot", "$4.50", "72%"]
+      - ["Pour Over", "Single Origin Flight", "$12.00", "68%"]
+      - ["Cold Brew", "Nitro Cascade", "$6.00", "75%"]
+      - ["Food", "Artisan Toast Board", "$9.50", "58%"]
+      - ["Retail", "Fresh Roasted Beans (12oz)", "$18.00", "55%"]
+
+  # Section divider
+  - type: section
+    title: "Financial Projections"
+    subtitle: "Strong unit economics"
+
+  # Table - financials
+  - type: table
+    title: "Unit Economics (Per Location)"
+    headers: ["Metric", "Year 1", "Year 2", "Year 3"]
+    data:
+      - ["Revenue", "$680K", "$820K", "$950K"]
+      - ["COGS", "$195K", "$230K", "$260K"]
+      - ["Labor", "$175K", "$195K", "$215K"]
+      - ["Rent & Utilities", "$96K", "$100K", "$104K"]
+      - ["EBITDA", "$145K", "$218K", "$285K"]
+
+  # Line chart - growth projection
+  - type: chart
+    title: "Franchise Network Growth Plan"
+    chart_type: line
+    categories: ["2024", "2025", "2026", "2027", "2028"]
+    series:
+      "Locations": [12, 35, 75, 140, 250]
+      "Franchisees": [8, 22, 48, 85, 150]
+
+  # Pie chart - revenue streams
+  - type: chart
+    title: "Revenue Mix by Category"
+    chart_type: pie
+    categories: ["Beverages", "Food", "Retail", "Workspace", "Catering"]
+    series:
+      "Revenue %": [55, 22, 12, 7, 4]
+
+  # Section divider
+  - type: section
+    title: "Franchise Package"
+    subtitle: "Your path to ownership"
+
+  # Content slide - investment details
+  - type: content
+    title: "Investment Overview"
+    bullets:
+      - "Initial franchise fee: $45,000"
+      - "Total investment range: $285K - $425K"
+      - "Ongoing royalty: 5% of gross sales"
+      - "Marketing fund contribution: 2% of gross sales"
+      - "Break-even timeline: 14-18 months average"
+
+  # Content slide - support
+  - type: content
+    title: "Franchisee Support Program"
+    bullets:
+      - "4-week comprehensive training at Brew Academy"
+      - "Site selection and lease negotiation assistance"
+      - "Turn-key buildout with approved vendors"
+      - "Proprietary POS and inventory management system"
+      - "Ongoing field support with dedicated business coach"
+      - "National marketing campaigns and local co-op advertising"
+
+  # Table - comparison
+  - type: table
+    title: "Competitive Comparison"
+    headers: ["Factor", "Brew & Beyond", "Competitor A", "Competitor B"]
+    data:
+      - ["Initial Investment", "$350K avg", "$650K", "$425K"]
+      - ["Avg Revenue/Location", "$820K", "$750K", "$680K"]
+      - ["Training Duration", "4 weeks", "2 weeks", "3 weeks"]
+      - ["Royalty Fee", "5%", "6%", "5.5%"]
+      - ["Franchise NPS", "82", "65", "71"]
+
+  # Final slide
+  - type: section
+    title: "Let's Talk Coffee"
+    subtitle: "franchise@brewandbeyond.com"
