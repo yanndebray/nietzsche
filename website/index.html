@@ -1,0 +1,1057 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>nietzsche — PowerPoint Generation from the Command Line</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #1a1a2e;
+            --paper: #fafafa;
+            --paper-dark: #f0f0f5;
+            --accent: #7c3aed;
+            --accent-deep: #5b21b6;
+            --accent-light: #a78bfa;
+            --muted: #64748b;
+            --code-bg: #1e1e2e;
+            --code-text: #e2e8f0;
+            --serif: 'Crimson Pro', Georgia, serif;
+            --sans: 'DM Sans', -apple-system, sans-serif;
+            --mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--sans);
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.7;
+            font-size: 17px;
+            overflow-x: hidden;
+        }
+
+        /* Subtle gradient overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(ellipse at top right, rgba(124, 58, 237, 0.03) 0%, transparent 50%),
+                        radial-gradient(ellipse at bottom left, rgba(91, 33, 182, 0.03) 0%, transparent 50%);
+            z-index: 1000;
+        }
+
+        /* Decorative border */
+        .page-border {
+            position: fixed;
+            top: 12px;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            border: 1px solid rgba(124, 58, 237, 0.1);
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to bottom, var(--paper) 60%, transparent);
+        }
+
+        .logo {
+            font-family: var(--serif);
+            font-size: 1.4rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            color: var(--ink);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+        }
+
+        .nav-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--ink);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 6rem 3rem 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1rem;
+            background: var(--paper-dark);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--muted);
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        .hero-badge span {
+            color: var(--accent);
+        }
+
+        h1 {
+            font-family: var(--serif);
+            font-size: clamp(3rem, 8vw, 5.5rem);
+            font-weight: 300;
+            line-height: 1.05;
+            letter-spacing: -0.03em;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease 0.1s forwards;
+            opacity: 0;
+        }
+
+        h1 em {
+            font-style: italic;
+            color: var(--accent);
+        }
+
+        .hero-subtitle {
+            font-family: var(--serif);
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: var(--muted);
+            max-width: 540px;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 0.8s ease 0.3s forwards;
+            opacity: 0;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 4px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-deep);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.25);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid rgba(26, 26, 46, 0.2);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: rgba(124, 58, 237, 0.03);
+        }
+
+        /* Decorative elements */
+        .hero-decoration {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 400px;
+            height: 500px;
+            opacity: 0.06;
+            pointer-events: none;
+        }
+
+        .hero-decoration svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Install Banner */
+        .install-banner {
+            background: var(--code-bg);
+            padding: 1rem 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .install-cmd {
+            font-family: var(--mono);
+            font-size: 0.95rem;
+            color: var(--code-text);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .install-cmd .prefix {
+            color: var(--accent-light);
+        }
+
+        .copy-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            padding: 0.3rem;
+            transition: color 0.2s;
+        }
+
+        .copy-btn:hover {
+            color: var(--code-text);
+        }
+
+        /* Main content sections */
+        section {
+            padding: 6rem 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 4rem;
+        }
+
+        .section-eyebrow {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        h2 {
+            font-family: var(--serif);
+            font-size: 2.5rem;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .section-desc {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+
+        /* Features Grid */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--paper-dark);
+            padding: 2.5rem;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 50px rgba(124, 58, 237, 0.1);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-deep));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            margin-bottom: 1.5rem;
+            color: var(--accent);
+        }
+
+        .feature-card h3 {
+            font-family: var(--serif);
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+        }
+
+        .feature-card p {
+            color: var(--muted);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* Code Examples */
+        .code-section {
+            background: var(--code-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 2rem 0;
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .code-tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .code-tab {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-family: var(--mono);
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .code-tab.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--code-text);
+        }
+
+        .code-dots {
+            display: flex;
+            gap: 6px;
+        }
+
+        .code-dots span {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        pre {
+            padding: 1.5rem;
+            overflow-x: auto;
+            font-family: var(--mono);
+            font-size: 0.9rem;
+            line-height: 1.8;
+            color: var(--code-text);
+        }
+
+        code {
+            font-family: var(--mono);
+        }
+
+        .code-comment { color: #6b7280; }
+        .code-keyword { color: #a78bfa; }
+        .code-string { color: #86efac; }
+        .code-function { color: #93c5fd; }
+        .code-class { color: #f0abfc; }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            padding: 2rem 0;
+            color: var(--muted);
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            width: 60px;
+            height: 1px;
+            background: currentColor;
+            opacity: 0.3;
+        }
+
+        .divider svg {
+            width: 20px;
+            height: 20px;
+            opacity: 0.5;
+            color: var(--accent);
+        }
+
+        /* API Reference */
+        .api-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .api-item {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 2rem;
+            padding: 2rem;
+            background: var(--paper-dark);
+            border-radius: 8px;
+            align-items: start;
+        }
+
+        .api-name {
+            font-family: var(--mono);
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--accent);
+        }
+
+        .api-desc {
+            color: var(--muted);
+            font-size: 0.95rem;
+        }
+
+        /* Philosophy Quote */
+        .philosophy {
+            background: linear-gradient(135deg, var(--paper-dark) 0%, var(--paper) 100%);
+            padding: 5rem 3rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .quote-mark {
+            font-family: var(--serif);
+            font-size: 8rem;
+            line-height: 1;
+            color: var(--accent);
+            opacity: 0.15;
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        blockquote {
+            font-family: var(--serif);
+            font-size: 1.6rem;
+            font-style: italic;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .quote-author {
+            font-family: var(--sans);
+            font-size: 0.9rem;
+            color: var(--muted);
+            font-style: normal;
+        }
+
+        /* Footer */
+        footer {
+            padding: 4rem 3rem 3rem;
+            border-top: 1px solid rgba(124, 58, 237, 0.1);
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 2rem;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-links a {
+            color: var(--muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        .footer-copy {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Scroll animations */
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.5rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 4rem;
+            }
+
+            section {
+                padding: 4rem 1.5rem;
+            }
+
+            .api-item {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .install-banner {
+                padding: 1rem 1.5rem;
+            }
+
+            .install-cmd {
+                font-size: 0.8rem;
+                padding: 0.5rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-border"></div>
+
+    <nav>
+        <a href="#" class="logo">
+            <span class="logo-mark">n</span>
+            nietzsche
+        </a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#usage">Usage</a>
+            <a href="#cli">CLI</a>
+            <a href="https://github.com/yanndebray/nietzsche" target="_blank">GitHub</a>
+            <a href="https://pypi.org/project/nietzsche/" target="_blank">PyPI</a>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span>v0.1.1</span> · MIT Licensed
+                </div>
+                <h1>Create. Automate.<br><em>Present.</em></h1>
+                <p class="hero-subtitle">
+                    A powerful Python CLI for generating PowerPoint presentations programmatically. Templates, YAML input, charts, tables—all from your terminal.
+                </p>
+                <div class="hero-actions">
+                    <a href="#usage" class="btn btn-primary">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polygon points="5 3 19 12 5 21 5 3"/>
+                        </svg>
+                        Get Started
+                    </a>
+                    <a href="https://github.com/yanndebray/nietzsche" class="btn btn-secondary" target="_blank">
+                        View on GitHub
+                    </a>
+                </div>
+            </div>
+            <div class="hero-decoration">
+                <svg viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M200 50 L350 150 L350 350 L200 450 L50 350 L50 150 Z" stroke="currentColor" stroke-width="0.5" fill="none"/>
+                    <path d="M200 100 L300 175 L300 325 L200 400 L100 325 L100 175 Z" stroke="currentColor" stroke-width="0.5" fill="none"/>
+                    <circle cx="200" cy="250" r="60" stroke="currentColor" stroke-width="0.5" fill="none"/>
+                    <line x1="200" y1="50" x2="200" y2="450" stroke="currentColor" stroke-width="0.3"/>
+                    <line x1="50" y1="250" x2="350" y2="250" stroke="currentColor" stroke-width="0.3"/>
+                </svg>
+            </div>
+        </section>
+
+        <div class="install-banner">
+            <div class="install-cmd">
+                <span class="prefix">$</span> pip install nietzsche
+                <button class="copy-btn" onclick="copyToClipboard('pip install nietzsche')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <section id="features">
+            <div class="section-header animate-on-scroll">
+                <p class="section-eyebrow">Features</p>
+                <h2>Everything You Need</h2>
+                <p class="section-desc">A complete toolkit for creating professional presentations from code.</p>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/>
+                        <path d="M9 3v18"/>
+                        <path d="M3 9h6"/>
+                        <path d="M3 15h6"/>
+                        <path d="M12 8h5"/>
+                        <path d="M12 12h5"/>
+                        <path d="M12 16h3"/>
+                    </svg>
+                    <h3>Template Support</h3>
+                    <p>Use existing PowerPoint templates like Galaxy.pptx to maintain brand consistency across all your presentations.</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                        <polyline points="14,2 14,8 20,8"/>
+                        <line x1="16" y1="13" x2="8" y2="13"/>
+                        <line x1="16" y1="17" x2="8" y2="17"/>
+                    </svg>
+                    <h3>YAML/JSON Input</h3>
+                    <p>Define your entire presentation in a simple YAML or JSON file. Perfect for automation, CI/CD pipelines, and batch generation.</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <line x1="3" y1="9" x2="21" y2="9"/>
+                        <line x1="9" y1="21" x2="9" y2="9"/>
+                    </svg>
+                    <h3>Tables & Data</h3>
+                    <p>Create formatted data tables with headers, custom styling, and automatic cell sizing. Perfect for reports and dashboards.</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <line x1="18" y1="20" x2="18" y2="10"/>
+                        <line x1="12" y1="20" x2="12" y2="4"/>
+                        <line x1="6" y1="20" x2="6" y2="14"/>
+                        <line x1="3" y1="20" x2="21" y2="20"/>
+                    </svg>
+                    <h3>Charts</h3>
+                    <p>Generate bar charts, line charts, and pie charts directly from your data. Multiple series support with automatic legends.</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <polyline points="21 15 16 10 5 21"/>
+                    </svg>
+                    <h3>Images</h3>
+                    <p>Add images with automatic aspect ratio preservation. Supports positioning, sizing, and multiple image formats.</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                        <line x1="8" y1="6" x2="16" y2="6"/>
+                        <line x1="8" y1="10" x2="14" y2="10"/>
+                    </svg>
+                    <h3>Speaker Notes</h3>
+                    <p>Add speaker notes to any slide programmatically. Perfect for generating training materials and documented presentations.</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <polyline points="4 17 10 11 4 5"/>
+                        <line x1="12" y1="19" x2="20" y2="19"/>
+                    </svg>
+                    <h3>CLI Interface</h3>
+                    <p>Full-featured command-line interface with <code>power</code> command. Create, inspect, and modify presentations from your terminal.</p>
+                </div>
+
+                <div class="feature-card animate-on-scroll">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                    <h3>Python API</h3>
+                    <p>Fluent Python API with method chaining. PowerPresentation and SlideBuilder classes for full programmatic control.</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
+        </div>
+
+        <section id="usage">
+            <div class="section-header animate-on-scroll">
+                <p class="section-eyebrow">Quick Start</p>
+                <h2>Simple by Design</h2>
+                <p class="section-desc">Get started in seconds. Install and create your first presentation.</p>
+            </div>
+
+            <div class="code-section animate-on-scroll">
+                <div class="code-header">
+                    <div class="code-tabs">
+                        <button class="code-tab active">Terminal</button>
+                    </div>
+                    <div class="code-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+<pre><span class="code-comment"># Install the package</span>
+<span class="code-keyword">$</span> pip install nietzsche
+
+<span class="code-comment"># Create a simple presentation</span>
+<span class="code-keyword">$</span> power create my_deck.pptx --title <span class="code-string">"Q1 Report"</span>
+<span class="code-string">Created presentation: my_deck.pptx</span>
+
+<span class="code-comment"># Use a template</span>
+<span class="code-keyword">$</span> power create themed.pptx -t Galaxy.pptx --title <span class="code-string">"Galaxy Theme"</span>
+<span class="code-string">Created presentation: themed.pptx</span>
+
+<span class="code-comment"># Inspect a template's layouts</span>
+<span class="code-keyword">$</span> power inspect Galaxy.pptx
+<span class="code-string">Slides: 13 | Layouts: 15 | Dimensions: 13.33" x 7.50"</span></pre>
+            </div>
+
+            <div class="code-section animate-on-scroll">
+                <div class="code-header">
+                    <div class="code-tabs">
+                        <button class="code-tab active">slides.yaml</button>
+                    </div>
+                    <div class="code-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+<pre><span class="code-keyword">title:</span> Quarterly Business Review
+<span class="code-keyword">subtitle:</span> Q4 2024 Results
+
+<span class="code-keyword">slides:</span>
+  - <span class="code-function">type:</span> section
+    <span class="code-function">title:</span> Executive Summary
+
+  - <span class="code-function">type:</span> content
+    <span class="code-function">title:</span> Key Achievements
+    <span class="code-function">bullets:</span>
+      - Revenue grew 25% year-over-year
+      - Customer satisfaction at 94%
+      - Launched 3 new product lines
+
+  - <span class="code-function">type:</span> table
+    <span class="code-function">title:</span> Financial Overview
+    <span class="code-function">headers:</span> [Metric, Q3, Q4, Change]
+    <span class="code-function">data:</span>
+      - [Revenue, <span class="code-string">"$2.1M"</span>, <span class="code-string">"$2.6M"</span>, <span class="code-string">"+24%"</span>]
+      - [Net Profit, <span class="code-string">"$0.7M"</span>, <span class="code-string">"$1.1M"</span>, <span class="code-string">"+57%"</span>]
+
+  - <span class="code-function">type:</span> chart
+    <span class="code-function">title:</span> Revenue by Region
+    <span class="code-function">chart_type:</span> bar
+    <span class="code-function">categories:</span> [NA, Europe, Asia]
+    <span class="code-function">series:</span>
+      <span class="code-class">Q3:</span> [1200, 500, 300]
+      <span class="code-class">Q4:</span> [1400, 650, 400]</pre>
+            </div>
+
+            <div class="code-section animate-on-scroll">
+                <div class="code-header">
+                    <div class="code-tabs">
+                        <button class="code-tab active">Python API</button>
+                    </div>
+                    <div class="code-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+<pre><span class="code-keyword">from</span> power <span class="code-keyword">import</span> PowerPresentation
+
+<span class="code-comment"># Create from template</span>
+ppt = <span class="code-function">PowerPresentation</span>(template=<span class="code-string">"Galaxy.pptx"</span>)
+ppt.<span class="code-function">clear_slides</span>()
+
+<span class="code-comment"># Add title slide</span>
+ppt.<span class="code-function">add_title_slide</span>(<span class="code-string">"Q1 Report"</span>, <span class="code-string">"Sales Overview"</span>)
+
+<span class="code-comment"># Add content with bullets</span>
+ppt.<span class="code-function">add_content_slide</span>(<span class="code-string">"Key Metrics"</span>, [
+    <span class="code-string">"Revenue: $2.5M (+20%)"</span>,
+    <span class="code-string">"New customers: 150"</span>,
+    <span class="code-string">"Retention: 95%"</span>
+])
+
+<span class="code-comment"># Add chart</span>
+slide = ppt.<span class="code-function">add_slide</span>(<span class="code-class">5</span>)
+slide.<span class="code-function">set_title</span>(<span class="code-string">"Sales Trend"</span>)
+slide.<span class="code-function">add_bar_chart</span>(
+    categories=[<span class="code-string">"Jan"</span>, <span class="code-string">"Feb"</span>, <span class="code-string">"Mar"</span>],
+    series_data={<span class="code-string">"Sales"</span>: [<span class="code-class">100</span>, <span class="code-class">150</span>, <span class="code-class">200</span>]}
+)
+
+ppt.<span class="code-function">save</span>(<span class="code-string">"report.pptx"</span>)</pre>
+            </div>
+        </section>
+
+        <section id="cli">
+            <div class="section-header animate-on-scroll">
+                <p class="section-eyebrow">CLI Reference</p>
+                <h2>The power Command</h2>
+                <p class="section-desc">A complete command-line interface for presentation generation.</p>
+            </div>
+
+            <div class="api-grid">
+                <div class="api-item animate-on-scroll">
+                    <span class="api-name">power create</span>
+                    <span class="api-desc">Create a new presentation with a title slide. Options: <code>-t/--template</code> for template file, <code>--title</code>, <code>--subtitle</code>.</span>
+                </div>
+                <div class="api-item animate-on-scroll">
+                    <span class="api-name">power generate</span>
+                    <span class="api-desc">Generate presentation from YAML or JSON file. Options: <code>-o/--output</code> for output path, <code>-t/--template</code> for template.</span>
+                </div>
+                <div class="api-item animate-on-scroll">
+                    <span class="api-name">power inspect</span>
+                    <span class="api-desc">Inspect a template's layouts, placeholders, and dimensions. Options: <code>--json</code> for JSON output.</span>
+                </div>
+                <div class="api-item animate-on-scroll">
+                    <span class="api-name">power new</span>
+                    <span class="api-desc">Interactive mode: create presentations step-by-step with prompts for title, content, and slide types.</span>
+                </div>
+                <div class="api-item animate-on-scroll">
+                    <span class="api-name">power add</span>
+                    <span class="api-desc">Add a slide to an existing presentation. Options: <code>--title</code>, <code>--bullets</code> (multiple), <code>--layout</code>.</span>
+                </div>
+                <div class="api-item animate-on-scroll">
+                    <span class="api-name">power remove</span>
+                    <span class="api-desc">Remove a slide by index from a presentation. Specify 0-based slide index.</span>
+                </div>
+                <div class="api-item animate-on-scroll">
+                    <span class="api-name">power replace</span>
+                    <span class="api-desc">Replace {{PLACEHOLDER}} text throughout a presentation. Usage: <code>power replace template.pptx NAME=John -o output.pptx</code></span>
+                </div>
+            </div>
+        </section>
+
+        <section class="philosophy">
+            <span class="quote-mark">"</span>
+            <blockquote class="animate-on-scroll">
+                He who has a why to live can bear almost any how.
+                <footer class="quote-author">— Friedrich Nietzsche</footer>
+            </blockquote>
+        </section>
+
+        <section>
+            <div class="section-header animate-on-scroll">
+                <p class="section-eyebrow">Examples</p>
+                <h2>Common Workflows</h2>
+                <p class="section-desc">See nietzsche in action with these real-world examples.</p>
+            </div>
+
+            <div class="code-section animate-on-scroll">
+                <div class="code-header">
+                    <div class="code-tabs">
+                        <button class="code-tab active">Terminal</button>
+                    </div>
+                    <div class="code-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+<pre><span class="code-comment"># Generate from YAML with template</span>
+<span class="code-keyword">$</span> power generate slides.yaml -o quarterly.pptx -t Galaxy.pptx
+<span class="code-string">Generated presentation: quarterly.pptx</span>
+<span class="code-string">  Slides: 8</span>
+
+<span class="code-comment"># Inspect available layouts in a template</span>
+<span class="code-keyword">$</span> power inspect Galaxy.pptx
+<span class="code-string">┌─ PowerPoint Inspection ─┐</span>
+<span class="code-string">│ Galaxy.pptx             │</span>
+<span class="code-string">└─────────────────────────┘</span>
+<span class="code-string"> Slides: 13 | Layouts: 15</span>
+<span class="code-string"> 0: Title Only Slide</span>
+<span class="code-string"> 1: Title and image</span>
+<span class="code-string"> 5: Title + Subtitle slide</span>
+<span class="code-string"> ...</span>
+
+<span class="code-comment"># Add a slide to existing presentation</span>
+<span class="code-keyword">$</span> power add deck.pptx -o updated.pptx \
+    --title <span class="code-string">"New Section"</span> \
+    --bullets <span class="code-string">"First point"</span> \
+    --bullets <span class="code-string">"Second point"</span>
+<span class="code-string">Added slide: New Section</span>
+<span class="code-string">Total slides: 9</span>
+
+<span class="code-comment"># Replace placeholders in a template</span>
+<span class="code-keyword">$</span> power replace template.pptx \
+    <span class="code-string">"COMPANY=Acme Corp"</span> \
+    <span class="code-string">"DATE=January 2025"</span> \
+    -o filled.pptx
+<span class="code-string">Replaced 2 placeholder(s)</span></pre>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="https://github.com/yanndebray/nietzsche" target="_blank">GitHub</a>
+                <a href="https://pypi.org/project/nietzsche/" target="_blank">PyPI</a>
+                <a href="https://python-pptx.readthedocs.io/" target="_blank">python-pptx docs</a>
+            </div>
+            <p class="footer-copy">
+                Built with python-pptx · MIT License
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Copy to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`;
+                setTimeout(() => {
+                    btn.innerHTML = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+                }, 2000);
+            });
+        }
+
+        // Scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        });
+
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
