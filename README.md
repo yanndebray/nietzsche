@@ -1,6 +1,7 @@
 # Nietzsche ⚡Power⚡Point⚡Generator
 
 [![PyPI](https://img.shields.io/pypi/v/nietzsche.svg)](https://pypi.org/project/nietzsche/)
+[![Docs](https://img.shields.io/badge/docs-nietzsche-7c3aed.svg)](https://yanndebray.github.io/nietzsche/)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/yanndebray/nietzsche/blob/main/LICENSE)
 
 A CLI tool for generating PowerPoint presentations programmatically.
