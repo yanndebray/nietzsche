@@ -1,0 +1,151 @@
+title: Power CLI Documentation
+subtitle: Generate PowerPoint presentations from the command line
+
+slides:
+  - type: section
+    title: Getting Started
+
+  - type: content
+    title: What is Power CLI?
+    bullets:
+      - Command-line tool for creating PowerPoint presentations
+      - Generate slides from YAML/JSON specifications
+      - Support for templates like Galaxy and Coffee
+      - Built with python-pptx and Click
+    note: Power CLI is part of the Nietzsche project
+
+  - type: content
+    title: Installation
+    bullets:
+      - "Install via pip: pip install nietzsche"
+      - Requires Python 3.9 or higher
+      - Dependencies auto-installed (python-pptx, click, rich)
+      - "Verify installation: power --version"
+
+  - type: section
+    title: Core Commands
+
+  - type: table
+    title: Command Overview
+    headers: [Command, Purpose, Key Options]
+    data:
+      - [create, Create new presentation, --title, --template]
+      - [generate, Build from YAML/JSON, -o output, -t template]
+      - [inspect, View template layouts, --json]
+      - [new, Interactive builder, -t template, -o output]
+      - [add, Add slide to deck, --title, --bullets]
+      - [replace, Fill placeholders, key=value pairs]
+      - [remove, Delete a slide, slide index]
+
+  - type: content
+    title: "power create"
+    bullets:
+      - Create a new presentation with title slide
+      - "Syntax: power create OUTPUT [OPTIONS]"
+      - "Use template: power create deck.pptx -t Galaxy.pptx"
+      - "Set title: power create deck.pptx --title \"My Talk\""
+      - "Full example: power create output.pptx -t Galaxy.pptx --title \"Q1 Report\" --subtitle \"2024 Results\""
+
+  - type: content
+    title: "power generate"
+    bullets:
+      - Generate full presentations from YAML or JSON
+      - "Syntax: power generate INPUT -o OUTPUT [-t TEMPLATE]"
+      - Supports all slide types (title, content, table, chart, image)
+      - "Example: power generate slides.yaml -o deck.pptx -t Galaxy.pptx"
+    note: This is the most powerful command for batch generation
+
+  - type: content
+    title: "power inspect"
+    bullets:
+      - View template layouts and placeholders
+      - Essential for understanding template structure
+      - "Syntax: power inspect PPTX_FILE [--json]"
+      - "Example: power inspect Galaxy.pptx"
+      - Shows layout names, indices, and placeholder details
+
+  - type: content
+    title: "power new"
+    bullets:
+      - Interactive presentation builder
+      - Guided prompts for title and slides
+      - Menu-driven slide type selection
+      - "Syntax: power new [-t TEMPLATE] [-o OUTPUT]"
+      - "Example: power new -t Galaxy.pptx -o my_deck.pptx"
+
+  - type: content
+    title: "power add, replace, remove"
+    bullets:
+      - "add: Append slides to existing presentations"
+      - "replace: Fill {{PLACEHOLDER}} text throughout"
+      - "remove: Delete slides by index (0-based)"
+      - "Add example: power add deck.pptx -o out.pptx --title \"New\" --bullets \"Point 1\""
+      - "Replace example: power replace template.pptx NAME=John -o filled.pptx"
+
+  - type: section
+    title: YAML Specification
+
+  - type: content
+    title: YAML Structure
+    bullets:
+      - Top-level title and subtitle for title slide
+      - "slides: list of slide definitions"
+      - Each slide has type and type-specific fields
+      - Optional notes for speaker notes
+    note: YAML is the recommended format for slide specifications
+
+  - type: table
+    title: Supported Slide Types
+    headers: [Type, Purpose, Required Fields]
+    data:
+      - [title, Title slide, title]
+      - [section, Section header, title]
+      - [content, Bullet points, title, bullets]
+      - [table, Data table, title, headers, data]
+      - [chart, Bar/line/pie chart, title, chart_type, categories, series]
+      - [image, Image slide, title, image]
+      - [blank, Empty slide, (none)]
+
+  - type: content
+    title: Content Slide with Image
+    bullets:
+      - Add images alongside bullet points
+      - "image: path to image file"
+      - "image_width: width in inches"
+      - "image_left: horizontal position"
+      - "image_top: vertical position"
+      - Supports PNG, JPG, and other common formats
+
+  - type: content
+    title: Chart Configuration
+    bullets:
+      - "chart_type: bar, line, or pie"
+      - "categories: list of category labels"
+      - "series: dictionary of series name to values"
+      - Charts automatically centered on slide
+      - Multiple series supported for comparison
+
+  - type: section
+    title: Tips and Best Practices
+
+  - type: content
+    title: Working with Templates
+    bullets:
+      - Use power inspect to understand template layouts
+      - Galaxy.pptx and Coffee.pptx included
+      - Templates define visual styling and layouts
+      - Smart layout detection for tables and charts
+      - Picture placeholders auto-detected (v0.1.6+)
+
+  - type: content
+    title: Getting Help
+    bullets:
+      - "power --help for main help"
+      - "power COMMAND --help for command help"
+      - "-h shorthand works for all commands"
+      - "Example: power generate -h"
+      - "Project: github.com/yanndebray/nietzsche"
+
+  - type: title
+    title: Start Creating!
+    subtitle: power create my_first_deck.pptx -t Galaxy.pptx
