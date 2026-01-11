@@ -1,0 +1,78 @@
+site_name: Power CLI
+site_description: A CLI tool for generating PowerPoint presentations programmatically
+site_author: Yann Debray
+site_url: https://yanndebray.github.io/nietzsche/
+
+repo_name: yanndebray/nietzsche
+repo_url: https://github.com/yanndebray/nietzsche
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths: [src]
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+
+nav:
+  - Home: index.md
+  - Installation: install.md
+  - Quick Start: quickstart.md
+  - Commands:
+      - Overview: commands/index.md
+      - power create: commands/create.md
+      - power generate: commands/generate.md
+      - power inspect: commands/inspect.md
+      - power new: commands/new.md
+      - power add: commands/add.md
+      - power remove: commands/remove.md
+      - power replace: commands/replace.md
+  - YAML Format: yaml-format.md
+  - Cookbook: cookbook.md
+  - Troubleshooting: troubleshooting.md
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/yanndebray/nietzsche
