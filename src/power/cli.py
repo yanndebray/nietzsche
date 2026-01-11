@@ -21,7 +21,7 @@ console = Console()
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
-@click.version_option(prog_name="power")
+@click.version_option(prog_name="power", package_name="nietzsche")
 def main():
     """Power - Generate PowerPoint presentations from the command line.
 
