@@ -1,0 +1,30 @@
+title: Image Feature Test
+subtitle: Testing image support in slides
+
+slides:
+  - type: section
+    title: Image Slides Demo
+
+  # Test: Dedicated image slide
+  - type: image
+    title: Full Image Slide
+    image: website/og-image.png
+    width: 8
+    left: 2.5
+    top: 1.5
+
+  # Test: Content slide with image
+  - type: content
+    title: Content with Image
+    bullets:
+      - Bullet point on the left
+      - Image appears on the right
+      - Supports positioning options
+    image: website/og-image.png
+    image_width: 4
+    image_left: 7.5
+    image_top: 2
+
+  - type: title
+    title: Test Complete
+    subtitle: Image support working!

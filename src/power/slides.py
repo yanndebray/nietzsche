@@ -405,6 +405,80 @@ class SlideBuilder:
         self._slide.shapes.add_picture(image_source, left, top, width=width, height=height)
         return self
 
+    def fill_picture_placeholder(
+        self,
+        image_path: str | Path | BytesIO,
+        placeholder_idx: int | None = None,
+    ) -> SlideBuilder:
+        """Fill a picture placeholder with an image.
+
+        This method inserts an image into a PICTURE placeholder in the slide,
+        which is common in professionally designed templates. The image will
+        be cropped to fit the placeholder's shape.
+
+        Args:
+            image_path: Path to image file or BytesIO object.
+            placeholder_idx: Specific placeholder index to fill. If None,
+                fills the first available picture placeholder.
+
+        Returns:
+            Self for method chaining.
+
+        Raises:
+            FileNotFoundError: If image file doesn't exist.
+            ValueError: If no picture placeholder is found.
+        """
+        if isinstance(image_path, (str, Path)):
+            image_path = Path(image_path)
+            if not image_path.exists():
+                raise FileNotFoundError(f"Image not found: {image_path}")
+            image_source = str(image_path)
+        else:
+            image_source = image_path
+
+        # Find picture placeholder(s)
+        picture_placeholders = []
+        for shape in self._slide.placeholders:
+            # PICTURE placeholder type is 18
+            if shape.placeholder_format.type.value == 18:
+                picture_placeholders.append(shape)
+
+        if not picture_placeholders:
+            raise ValueError("No picture placeholder found in this slide")
+
+        # Select the placeholder to fill
+        if placeholder_idx is not None:
+            # Find by specific index
+            target = None
+            for ph in picture_placeholders:
+                if ph.placeholder_format.idx == placeholder_idx:
+                    target = ph
+                    break
+            if target is None:
+                raise ValueError(f"Picture placeholder with idx {placeholder_idx} not found")
+        else:
+            # Use the first available picture placeholder
+            target = picture_placeholders[0]
+
+        # Insert the picture into the placeholder
+        target.insert_picture(image_source)
+        return self
+
+    def get_picture_placeholders(self) -> list[dict]:
+        """Get list of picture placeholders in this slide.
+
+        Returns:
+            List of dicts with 'idx' and 'name' for each picture placeholder.
+        """
+        placeholders = []
+        for shape in self._slide.placeholders:
+            if shape.placeholder_format.type.value == 18:
+                placeholders.append({
+                    "idx": shape.placeholder_format.idx,
+                    "name": shape.name,
+                })
+        return placeholders
+
     def add_shape(
         self,
         shape_type: MSO_SHAPE = MSO_SHAPE.RECTANGLE,

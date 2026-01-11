@@ -42,6 +42,28 @@ slides:
       - Enter Latin American market
       - Hire 30 additional team members
 
+  # Example: Dedicated image slide
+  - type: image
+    title: Our Global Presence
+    image: images/world_map.png
+    width: 10
+    height: 5
+    left: 1.5
+    top: 1.8
+    note: Highlight our expansion into new markets
+
+  # Example: Content slide with image on the right
+  - type: content
+    title: New Product Launch
+    bullets:
+      - Innovative design
+      - 50% more efficient
+      - Customer-driven features
+    image: images/product.png
+    image_width: 4
+    image_left: 8
+    image_top: 2
+
   - type: title
     title: Thank You
     subtitle: Questions?

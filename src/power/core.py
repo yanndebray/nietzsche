@@ -169,6 +169,37 @@ class PowerPresentation:
         # Final fallback: layout 1 (standard for blank presentations)
         return 1
 
+    def find_picture_layout(self) -> int | None:
+        """Find a layout with picture placeholders.
+
+        Useful when you want to use template picture placeholders for images.
+        Prefers content layouts with picture placeholders.
+
+        Returns:
+            Layout index with picture placeholders, or None if not found.
+        """
+        # First: look for content layouts with picture placeholders
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            name_lower = layout.name.lower()
+            if "content" in name_lower:
+                has_picture = any(
+                    ph.placeholder_format.type.value == 18  # PICTURE type
+                    for ph in layout.placeholders
+                )
+                if has_picture:
+                    return i
+
+        # Second: any layout with picture placeholder
+        for i, layout in enumerate(self.presentation.slide_layouts):
+            has_picture = any(
+                ph.placeholder_format.type.value == 18
+                for ph in layout.placeholders
+            )
+            if has_picture:
+                return i
+
+        return None
+
     def add_slide(self, layout: int | str = 6) -> SlideBuilder:
         """Add a new slide and return a SlideBuilder for it.
 

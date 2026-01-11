@@ -1,0 +1,32 @@
+title: Placeholder Image Test
+subtitle: Testing picture placeholder filling
+
+slides:
+  # Title slide with picture placeholders (idx 10, 11 in Coffee.pptx)
+  - type: title
+    title: Welcome to Our Company
+    subtitle: Innovation in Every Cup
+    placeholder_images:
+      10: website/og-image.png
+
+  # Section header also has picture placeholders
+  - type: section
+    title: Our Story
+    subtitle: From beans to brilliance
+    placeholder_images:
+      10: website/og-image.png
+
+  # Content slide with placeholder image (using layout with picture placeholder)
+  - type: content
+    title: Key Features
+    layout: "Title and Content 1"  # This layout has picture placeholder idx 10
+    bullets:
+      - Premium quality ingredients
+      - Sustainable sourcing
+      - Expert craftsmanship
+    placeholder_images:
+      10: website/og-image.png
+
+  - type: title
+    title: Thank You
+    subtitle: Questions?

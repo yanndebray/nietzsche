@@ -97,28 +97,34 @@ def generate(input_file: str, output: str, template: str | None):
 
     INPUT_FILE is a YAML or JSON file describing the slides.
 
+    Supported slide types: title, section, content, table, chart, image, blank
+
     Example YAML format:
 
     \b
         title: My Presentation
         subtitle: A Great Deck
         slides:
-          - type: title
-            title: Welcome
-            subtitle: Getting Started
           - type: content
             title: Key Points
+            layout: "Title and Content 1"  # optional layout name
             bullets:
               - First point
               - Second point
-          - type: section
-            title: Part 2
+            image: path/to/image.png       # optional free-positioned image
+            placeholder_images:            # fill template placeholders
+              10: path/to/image.png        # placeholder idx: image path
+          - type: image
+            title: Full Image Slide
+            image: path/to/image.png
+            width: 8                       # optional (inches)
           - type: table
             title: Data Table
-            headers: [Name, Value, Status]
+            headers: [Name, Value]
             data:
-              - [Item A, 100, Active]
-              - [Item B, 200, Pending]
+              - [Item A, 100]
+
+    Use 'power inspect template.pptx' to see available layouts and placeholder indices.
     """
     try:
         # Load input file
@@ -146,6 +152,21 @@ def generate(input_file: str, output: str, template: str | None):
         sys.exit(1)
 
 
+def _fill_placeholder_images(builder, slide_spec: dict[str, Any]) -> None:
+    """Fill picture placeholders from slide spec."""
+    placeholder_images = slide_spec.get("placeholder_images", {})
+    if not placeholder_images:
+        return
+
+    for idx_str, image_path in placeholder_images.items():
+        try:
+            idx = int(idx_str)
+            builder.fill_picture_placeholder(image_path, placeholder_idx=idx)
+        except (ValueError, FileNotFoundError) as e:
+            # Log warning but continue with other placeholders
+            console.print(f"[yellow]Warning:[/yellow] Could not fill placeholder {idx_str}: {e}")
+
+
 def _build_from_spec(ppt: PowerPresentation, spec: dict[str, Any]) -> None:
     """Build presentation from specification dict."""
     # Handle title slide if top-level title exists
@@ -155,24 +176,49 @@ def _build_from_spec(ppt: PowerPresentation, spec: dict[str, Any]) -> None:
     # Process each slide
     for slide_spec in spec.get("slides", []):
         slide_type = slide_spec.get("type", "content")
+        builder = None
 
         if slide_type == "title":
-            ppt.add_title_slide(
+            builder = ppt.add_title_slide(
                 slide_spec.get("title", ""),
                 slide_spec.get("subtitle", ""),
             )
 
         elif slide_type == "section":
-            ppt.add_section_slide(
+            builder = ppt.add_section_slide(
                 slide_spec.get("title", ""),
                 slide_spec.get("subtitle", ""),
             )
 
         elif slide_type == "content":
+            # Support optional layout specification
+            layout = slide_spec.get("layout")
             builder = ppt.add_content_slide(
                 slide_spec.get("title", ""),
                 slide_spec.get("bullets"),
+                layout=layout,
             )
+            # Support optional image in content slides
+            image_path = slide_spec.get("image")
+            if image_path:
+                from pptx.util import Inches
+
+                # Position image on the right side by default for content slides
+                left = slide_spec.get("image_left", 7)
+                top = slide_spec.get("image_top", 1.5)
+                width = slide_spec.get("image_width", 5)
+                height = slide_spec.get("image_height")
+
+                kwargs = {
+                    "left": Inches(left),
+                    "top": Inches(top),
+                    "width": Inches(width),
+                }
+                if height is not None:
+                    kwargs["height"] = Inches(height)
+
+                builder.add_image(image_path, **kwargs)
+
             if "note" in slide_spec:
                 builder.add_note(slide_spec["note"])
 
@@ -201,8 +247,50 @@ def _build_from_spec(ppt: PowerPresentation, spec: dict[str, Any]) -> None:
             else:
                 builder.add_bar_chart(categories, series)
 
+        elif slide_type == "image":
+            title_only_layout = ppt.find_title_only_layout()
+            builder = ppt.add_slide(title_only_layout)
+            if "title" in slide_spec:
+                builder.set_title(slide_spec["title"])
+
+            image_path = slide_spec.get("image") or slide_spec.get("path")
+            if image_path:
+                # Convert position/size values to Inches if provided
+                from pptx.util import Inches
+
+                left = slide_spec.get("left")
+                top = slide_spec.get("top")
+                width = slide_spec.get("width")
+                height = slide_spec.get("height")
+
+                # Convert numeric values to Inches
+                left = Inches(left) if left is not None else None
+                top = Inches(top) if top is not None else None
+                width = Inches(width) if width is not None else None
+                height = Inches(height) if height is not None else None
+
+                # Build kwargs, only including non-None values
+                kwargs = {}
+                if left is not None:
+                    kwargs["left"] = left
+                if top is not None:
+                    kwargs["top"] = top
+                if width is not None:
+                    kwargs["width"] = width
+                if height is not None:
+                    kwargs["height"] = height
+
+                builder.add_image(image_path, **kwargs)
+
+            if "note" in slide_spec:
+                builder.add_note(slide_spec["note"])
+
         elif slide_type == "blank":
-            ppt.add_blank_slide()
+            builder = ppt.add_blank_slide()
+
+        # Fill picture placeholders if specified (works with any slide type)
+        if builder and "placeholder_images" in slide_spec:
+            _fill_placeholder_images(builder, slide_spec)
 
 
 @main.command()
