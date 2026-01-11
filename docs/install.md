@@ -3,7 +3,7 @@
 ## Requirements
 
 - Python 3.9 or higher
-- pip (Python package manager)
+- A package manager (pip, uv, or pipx)
 
 ## Install from PyPI
 
@@ -15,9 +15,86 @@ pip install nietzsche
 
 This installs the `power` command and all dependencies.
 
+## Install with uv (Recommended)
+
+[uv](https://docs.astral.sh/uv/) is an extremely fast Python package installer written in Rust. It's the recommended way to install Python tools.
+
+### Install uv first
+
+=== "macOS/Linux"
+
+    ```bash
+    curl -LsSf https://astral.sh/uv/install.sh | sh
+    ```
+
+=== "Windows"
+
+    ```powershell
+    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+    ```
+
+=== "pip"
+
+    ```bash
+    pip install uv
+    ```
+
+### Install nietzsche with uv
+
+```bash
+uv pip install nietzsche
+```
+
+Or install into an isolated tool environment:
+
+```bash
+uv tool install nietzsche
+```
+
+## Run with uvx (No Installation)
+
+[uvx](https://docs.astral.sh/uv/guides/tools/) lets you run Python tools without installing them permanently. Perfect for one-off use or trying out Power CLI:
+
+```bash
+# Run any power command directly
+uvx --from nietzsche power --help
+
+# Create a presentation
+uvx --from nietzsche power create deck.pptx --title "Quick Demo"
+
+# Generate from YAML
+uvx --from nietzsche power generate slides.yaml -o output.pptx
+```
+
+This downloads and caches the package automatically, running it in an isolated environment.
+
+### Create an alias (optional)
+
+For convenience, add an alias to your shell configuration:
+
+=== "Bash/Zsh"
+
+    ```bash
+    # Add to ~/.bashrc or ~/.zshrc
+    alias power='uvx --from nietzsche power'
+    ```
+
+=== "PowerShell"
+
+    ```powershell
+    # Add to $PROFILE
+    function power { uvx --from nietzsche power $args }
+    ```
+
+Then use it like a normal command:
+
+```bash
+power create deck.pptx --title "My Presentation"
+```
+
 ## Install with pipx (Isolated Environment)
 
-For CLI tools, [pipx](https://pypa.github.io/pipx/) is recommended as it installs the tool in an isolated environment:
+For CLI tools, [pipx](https://pypa.github.io/pipx/) is another option that installs the tool in an isolated environment:
 
 ```bash
 pipx install nietzsche
@@ -91,24 +168,47 @@ This includes:
 
 To upgrade to the latest version:
 
-```bash
-pip install --upgrade nietzsche
-```
+=== "pip"
 
-Or with pipx:
+    ```bash
+    pip install --upgrade nietzsche
+    ```
 
-```bash
-pipx upgrade nietzsche
-```
+=== "uv"
+
+    ```bash
+    uv pip install --upgrade nietzsche
+    # or for tool installation
+    uv tool upgrade nietzsche
+    ```
+
+=== "pipx"
+
+    ```bash
+    pipx upgrade nietzsche
+    ```
+
+!!! tip "uvx always uses latest"
+    When using `uvx`, you automatically get the latest version each time (cached for performance).
 
 ## Uninstalling
 
-```bash
-pip uninstall nietzsche
-```
+=== "pip"
 
-Or with pipx:
+    ```bash
+    pip uninstall nietzsche
+    ```
 
-```bash
-pipx uninstall nietzsche
-```
+=== "uv"
+
+    ```bash
+    uv pip uninstall nietzsche
+    # or for tool installation
+    uv tool uninstall nietzsche
+    ```
+
+=== "pipx"
+
+    ```bash
+    pipx uninstall nietzsche
+    ```

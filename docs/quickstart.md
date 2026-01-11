@@ -4,9 +4,24 @@ This guide will have you creating PowerPoint presentations in 5 minutes.
 
 ## Step 1: Install Power CLI
 
-```bash
-pip install nietzsche
-```
+=== "pip"
+
+    ```bash
+    pip install nietzsche
+    ```
+
+=== "uv"
+
+    ```bash
+    uv tool install nietzsche
+    ```
+
+=== "uvx (no install)"
+
+    ```bash
+    # Run directly without installing
+    uvx --from nietzsche power --version
+    ```
 
 Verify the installation:
 
