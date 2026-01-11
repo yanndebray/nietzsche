@@ -1,11 +1,23 @@
 # Nietzsche ⚡Power⚡Point⚡Generator
 
+[![PyPI](https://img.shields.io/pypi/v/nietzsche.svg)](https://pypi.org/project/nietzsche/)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/yanndebray/nietzsche/blob/main/LICENSE)
+
 A CLI tool for generating PowerPoint presentations programmatically.
 
 ## Installation
 
+Install this tool using `uv`:
+```bash
+uv tool install nietzsche
+```
+Or using `pip`:
 ```bash
 pip install nietzsche
+```
+Or run it directly without installing using `uvx`:
+```bash
+uvx --from nietzsche power --help
 ```
 
 ## Quick Start
