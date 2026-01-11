@@ -1,0 +1,104 @@
+/* Custom color scheme matching nietzsche.cc website */
+
+:root {
+  /* Primary accent - purple from website */
+  --md-primary-fg-color: #7c3aed;
+  --md-primary-fg-color--light: #a78bfa;
+  --md-primary-fg-color--dark: #5b21b6;
+
+  /* Accent color */
+  --md-accent-fg-color: #7c3aed;
+  --md-accent-fg-color--transparent: rgba(124, 58, 237, 0.1);
+
+  /* Text colors from website */
+  --md-default-fg-color: #1a1a2e;
+  --md-default-fg-color--light: #64748b;
+
+  /* Code block colors from website */
+  --md-code-bg-color: #1e1e2e;
+  --md-code-fg-color: #e2e8f0;
+}
+
+/* Dark mode adjustments */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: #a78bfa;
+  --md-accent-fg-color: #a78bfa;
+  --md-default-bg-color: #1a1a2e;
+  --md-code-bg-color: #0f0f1a;
+}
+
+/* Header styling */
+.md-header {
+  background-color: var(--md-primary-fg-color);
+}
+
+/* Links */
+.md-typeset a {
+  color: var(--md-primary-fg-color);
+}
+
+.md-typeset a:hover {
+  color: var(--md-primary-fg-color--dark);
+}
+
+/* Navigation active state */
+.md-nav__link--active {
+  color: var(--md-primary-fg-color) !important;
+}
+
+/* Admonition accent colors */
+.md-typeset .admonition.tip,
+.md-typeset details.tip {
+  border-color: var(--md-primary-fg-color);
+}
+
+.md-typeset .tip > .admonition-title,
+.md-typeset .tip > summary {
+  background-color: var(--md-accent-fg-color--transparent);
+}
+
+/* Code highlighting accent */
+.md-typeset code {
+  background-color: rgba(124, 58, 237, 0.1);
+  color: var(--md-primary-fg-color--dark);
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: rgba(167, 139, 250, 0.15);
+  color: var(--md-primary-fg-color);
+}
+
+/* Button styling */
+.md-typeset .md-button--primary {
+  background-color: var(--md-primary-fg-color);
+  border-color: var(--md-primary-fg-color);
+}
+
+.md-typeset .md-button--primary:hover {
+  background-color: var(--md-primary-fg-color--dark);
+  border-color: var(--md-primary-fg-color--dark);
+}
+
+/* Search highlight */
+.md-search__input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Footer */
+.md-footer {
+  background-color: #1a1a2e;
+}
+
+/* Tabs styling */
+.md-typeset .tabbed-labels > label {
+  color: var(--md-default-fg-color--light);
+}
+
+.md-typeset .tabbed-labels > label:hover {
+  color: var(--md-primary-fg-color);
+}
+
+.md-typeset .tabbed-labels > .tabbed-input:checked + label {
+  color: var(--md-primary-fg-color);
+  border-color: var(--md-primary-fg-color);
+}
