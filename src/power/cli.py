@@ -20,7 +20,7 @@ from power.styles import BRAND, FONTS
 console = Console()
 
 
-@click.group()
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
 @click.version_option(prog_name="power")
 def main():
     """Power - Generate PowerPoint presentations from the command line.
