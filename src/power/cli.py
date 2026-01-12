@@ -515,5 +515,220 @@ def add_slide(pptx_file: str, output: str, title: str, bullets: tuple, layout: i
         sys.exit(1)
 
 
+# --- Cloud API Commands ---
+
+DEFAULT_API_URL = "https://power-api-944767079044.us-central1.run.app"
+
+
+@main.group()
+@click.option(
+    "--api-url",
+    default=DEFAULT_API_URL,
+    envvar="POWER_API_URL",
+    help="Cloud API URL (default: Cloud Run service)",
+)
+@click.pass_context
+def cloud(ctx, api_url: str):
+    """Generate presentations via cloud API.
+
+    Uses the deployed Power API service to generate presentations
+    in the cloud instead of locally.
+
+    Examples:
+
+        # Check API health
+        power cloud health
+
+        # Generate via cloud
+        power cloud generate slides.yaml -o presentation.pptx
+
+        # Use custom API URL
+        power cloud --api-url http://localhost:8080 health
+
+        # Or via environment variable
+        POWER_API_URL=http://localhost:8080 power cloud health
+    """
+    ctx.ensure_object(dict)
+    ctx.obj["api_url"] = api_url
+
+
+@cloud.command()
+@click.pass_context
+def health(ctx):
+    """Check cloud API health status.
+
+    Examples:
+
+        power cloud health
+    """
+    import httpx
+
+    api_url = ctx.obj["api_url"]
+
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            response = client.get(f"{api_url}/health")
+            response.raise_for_status()
+            data = response.json()
+
+        console.print(f"[green]API Status:[/green] {data.get('status', 'unknown')}")
+        console.print(f"[dim]Version:[/dim] {data.get('version', 'unknown')}")
+        console.print(f"[dim]URL:[/dim] {api_url}")
+
+    except httpx.ConnectError:
+        console.print(f"[red]Error:[/red] Cannot connect to API at {api_url}")
+        sys.exit(1)
+    except httpx.TimeoutException:
+        console.print(f"[red]Error:[/red] Request timed out")
+        sys.exit(1)
+    except httpx.HTTPStatusError as e:
+        console.print(f"[red]Error:[/red] HTTP {e.response.status_code}")
+        sys.exit(1)
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")
+        sys.exit(1)
+
+
+@cloud.command(name="generate")
+@click.argument("input_file", type=click.Path(exists=True))
+@click.option("-o", "--output", required=True, type=click.Path(), help="Output .pptx file")
+@click.option("-t", "--template", type=click.Path(exists=True), help="Template .pptx file")
+@click.pass_context
+def cloud_generate(ctx, input_file: str, output: str, template: str | None):
+    """Generate a presentation via cloud API.
+
+    INPUT_FILE is a YAML or JSON file describing the slides.
+
+    Examples:
+
+        power cloud generate slides.yaml -o presentation.pptx
+
+        power cloud generate slides.yaml -o themed.pptx -t Galaxy.pptx
+    """
+    import httpx
+
+    api_url = ctx.obj["api_url"]
+
+    try:
+        # Load input file
+        input_path = Path(input_file)
+        with open(input_path) as f:
+            if input_path.suffix.lower() in (".yaml", ".yml"):
+                spec = yaml.safe_load(f)
+            else:
+                spec = json.load(f)
+
+        with httpx.Client(timeout=60.0) as client:
+            if template:
+                # Use generate-with-template endpoint
+                with open(template, "rb") as template_file:
+                    files = {"template": (Path(template).name, template_file, "application/octet-stream")}
+                    data = {
+                        "spec": json.dumps(spec),
+                        "filename": Path(output).name,
+                    }
+                    response = client.post(
+                        f"{api_url}/generate-with-template",
+                        files=files,
+                        data=data,
+                    )
+            else:
+                # Use generate endpoint
+                response = client.post(
+                    f"{api_url}/generate",
+                    json=spec,
+                    params={"filename": Path(output).name},
+                )
+
+            response.raise_for_status()
+
+        # Save output
+        output_path = Path(output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_bytes(response.content)
+
+        console.print(f"[green]Generated via cloud:[/green] {output}")
+        console.print(f"[dim]Size:[/dim] {len(response.content):,} bytes")
+
+    except httpx.ConnectError:
+        console.print(f"[red]Error:[/red] Cannot connect to API at {api_url}")
+        sys.exit(1)
+    except httpx.TimeoutException:
+        console.print(f"[red]Error:[/red] Request timed out")
+        sys.exit(1)
+    except httpx.HTTPStatusError as e:
+        console.print(f"[red]Error:[/red] HTTP {e.response.status_code}: {e.response.text}")
+        sys.exit(1)
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")
+        sys.exit(1)
+
+
+@cloud.command(name="inspect")
+@click.argument("template", type=click.Path(exists=True))
+@click.option("--json", "as_json", is_flag=True, help="Output as JSON")
+@click.pass_context
+def cloud_inspect(ctx, template: str, as_json: bool):
+    """Inspect a template via cloud API.
+
+    Upload a template to see its available layouts and placeholders.
+
+    Examples:
+
+        power cloud inspect Galaxy.pptx
+
+        power cloud inspect template.pptx --json
+    """
+    import httpx
+
+    api_url = ctx.obj["api_url"]
+
+    try:
+        with httpx.Client(timeout=30.0) as client:
+            with open(template, "rb") as template_file:
+                files = {"template": (Path(template).name, template_file, "application/octet-stream")}
+                response = client.post(f"{api_url}/inspect", files=files)
+                response.raise_for_status()
+
+        info = response.json()
+
+        if as_json:
+            click.echo(json.dumps(info, indent=2))
+            return
+
+        # Rich formatted output
+        console.print()
+        console.print(Panel(f"[bold]{template}[/bold] (via cloud)", title="Template Inspection"))
+
+        info_table = Table(show_header=False, box=None)
+        info_table.add_row("Slides:", str(info.get("slide_count", "?")))
+        info_table.add_row("Layouts:", str(info.get("layout_count", "?")))
+        console.print(info_table)
+        console.print()
+
+        # Layout tree
+        tree = Tree("[bold]Available Layouts[/bold]")
+        for layout in info.get("layouts", []):
+            layout_branch = tree.add(f"[cyan]{layout['index']}[/cyan]: {layout['name']}")
+            for ph in layout.get("placeholders", []):
+                ph_type = ph["type"].replace("PLACEHOLDER_FORMAT_TYPE.", "")
+                layout_branch.add(f"[dim]idx={ph['idx']}[/dim] {ph['name']} ({ph_type})")
+
+        console.print(tree)
+
+    except httpx.ConnectError:
+        console.print(f"[red]Error:[/red] Cannot connect to API at {api_url}")
+        sys.exit(1)
+    except httpx.TimeoutException:
+        console.print(f"[red]Error:[/red] Request timed out")
+        sys.exit(1)
+    except httpx.HTTPStatusError as e:
+        console.print(f"[red]Error:[/red] HTTP {e.response.status_code}: {e.response.text}")
+        sys.exit(1)
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")
+        sys.exit(1)
+
+
 if __name__ == "__main__":
     main()
