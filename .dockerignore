@@ -1,0 +1,59 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache
+.mypy_cache
+.ruff_cache
+*.egg-info
+dist
+build
+.eggs
+
+# Virtual environments
+.env
+.venv
+venv
+ENV
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+
+# Testing
+.coverage
+htmlcov
+.tox
+
+# Documentation build output
+site
+
+# Generated output (not needed in container)
+output
+*.pptx
+!templates/*.pptx
+
+# Local config
+.env.local
+*.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Development files
+tests
+examples
+docs
+mkdocs.yml
+CLAUDE.md
+*.md
+!README.md
