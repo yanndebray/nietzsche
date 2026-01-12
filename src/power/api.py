@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 app = FastAPI(
     title="Power API",
     description="Generate PowerPoint presentations from YAML/JSON specifications",
-    version="0.1.7",
+    version="0.2.0",
     docs_url="/",
 )
 
@@ -249,7 +249,7 @@ def _generate_pptx_bytes(spec: dict[str, Any], template_bytes: bytes | None = No
 @app.get("/health", response_model=HealthResponse, tags=["System"])
 async def health_check():
     """Health check endpoint for Cloud Run."""
-    return HealthResponse(status="healthy", version="0.1.7")
+    return HealthResponse(status="healthy", version="0.2.0")
 
 
 @app.post("/generate", tags=["Generate"])
