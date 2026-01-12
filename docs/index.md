@@ -52,41 +52,13 @@ power new -t Galaxy.pptx -o my_deck.pptx
 
 ## Getting Started
 
-<div class="grid cards" markdown>
-
--   :material-download:{ .lg .middle } **Installation**
-
-    ---
-
-    Install Power CLI with pip in seconds
-
-    [:octicons-arrow-right-24: Install](install.md)
-
--   :material-rocket-launch:{ .lg .middle } **Quick Start**
-
-    ---
-
-    Create your first presentation in 5 minutes
-
-    [:octicons-arrow-right-24: Quick Start](quickstart.md)
-
--   :material-console:{ .lg .middle } **Commands**
-
-    ---
-
-    Complete CLI reference documentation
-
-    [:octicons-arrow-right-24: Commands](commands/index.md)
-
--   :material-book-open-variant:{ .lg .middle } **Cookbook**
-
-    ---
-
-    Real-world examples and recipes
-
-    [:octicons-arrow-right-24: Cookbook](cookbook.md)
-
-</div>
+| Guide | Description |
+|-------|-------------|
+| [Installation](install.md) | Install Power CLI with pip or uv in seconds |
+| [Quick Start](quickstart.md) | Create your first presentation in 5 minutes |
+| [Commands](commands/index.md) | Complete CLI reference documentation |
+| [REST API](api.md) | Generate presentations via HTTP API |
+| [Cookbook](cookbook.md) | Real-world examples and recipes |
 
 ## Supported Slide Types
 
