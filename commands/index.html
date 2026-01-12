@@ -772,9 +772,64 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cloud/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    power cloud
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    REST API
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1012,7 +1067,7 @@
 
 
 <h1 id="cli-commands">CLI Commands<a class="headerlink" href="#cli-commands" title="Permanent link">&para;</a></h1>
-<p>Power CLI provides seven commands for creating and manipulating PowerPoint presentations.</p>
+<p>Power CLI provides commands for creating and manipulating PowerPoint presentations, both locally and via cloud API.</p>
 <h2 id="command-overview">Command Overview<a class="headerlink" href="#command-overview" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1049,6 +1104,10 @@
 <tr>
 <td><a href="replace/"><code>power replace</code></a></td>
 <td>Replace <code>{{PLACEHOLDER}}</code> text</td>
+</tr>
+<tr>
+<td><a href="cloud/"><code>power cloud</code></a></td>
+<td>Generate presentations via cloud API</td>
 </tr>
 </tbody>
 </table>
@@ -1123,7 +1182,24 @@
 </tbody>
 </table>
 <h2 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">&para;</a></h2>
-<p>Currently, Power CLI does not use environment variables. All configuration is done via command-line options or input files.</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>POWER_API_URL</code></td>
+<td>Override the default cloud API URL for <code>power cloud</code> commands</td>
+</tr>
+</tbody>
+</table>
+<p>Example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">export</span><span class="w"> </span><span class="nv">POWER_API_URL</span><span class="o">=</span>http://localhost:8080
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>power<span class="w"> </span>cloud<span class="w"> </span>health
+</code></pre></div>
 
 
 
