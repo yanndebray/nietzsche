@@ -71,6 +71,8 @@ nav:
       - power add: commands/add.md
       - power remove: commands/remove.md
       - power replace: commands/replace.md
+      - power cloud: commands/cloud.md
+  - REST API: api.md
   - YAML Format: yaml-format.md
   - Cookbook: cookbook.md
   - Troubleshooting: troubleshooting.md

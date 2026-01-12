@@ -1,6 +1,6 @@
 # CLI Commands
 
-Power CLI provides seven commands for creating and manipulating PowerPoint presentations.
+Power CLI provides commands for creating and manipulating PowerPoint presentations, both locally and via cloud API.
 
 ## Command Overview
 
@@ -13,6 +13,7 @@ Power CLI provides seven commands for creating and manipulating PowerPoint prese
 | [`power add`](add.md) | Add a slide to an existing presentation |
 | [`power remove`](remove.md) | Remove a slide by index |
 | [`power replace`](replace.md) | Replace `{{PLACEHOLDER}}` text |
+| [`power cloud`](cloud.md) | Generate presentations via cloud API |
 
 ## Global Options
 
@@ -80,4 +81,13 @@ power add deck.pptx -o deck.pptx --title "Slide 3" --bullets "Point 2"
 
 ## Environment Variables
 
-Currently, Power CLI does not use environment variables. All configuration is done via command-line options or input files.
+| Variable | Description |
+|----------|-------------|
+| `POWER_API_URL` | Override the default cloud API URL for `power cloud` commands |
+
+Example:
+
+```bash
+export POWER_API_URL=http://localhost:8080
+power cloud health
+```

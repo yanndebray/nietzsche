@@ -48,6 +48,27 @@ power new -t Galaxy.pptx
 | `power add` | Add slide to existing presentation |
 | `power remove` | Remove slide by index |
 | `power replace` | Replace `{{PLACEHOLDER}}` text |
+| `power cloud` | Generate presentations via cloud API |
+
+## Cloud API
+
+Generate presentations via REST API:
+
+```bash
+# Check API health
+power cloud health
+
+# Generate via cloud
+power cloud generate slides.yaml -o presentation.pptx
+
+# Or use the REST API directly
+curl -X POST "https://power-api-944767079044.us-central1.run.app/generate" \
+  -H "Content-Type: application/json" \
+  -d '{"title": "My Deck", "slides": [{"type": "content", "title": "Hello", "bullets": ["Point 1"]}]}' \
+  --output presentation.pptx
+```
+
+API Documentation: https://power-api-944767079044.us-central1.run.app/
 
 ## YAML Format
 
