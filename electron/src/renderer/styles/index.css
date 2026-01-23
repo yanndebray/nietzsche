@@ -1,0 +1,137 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-primary: #0ea5e9;
+  --color-secondary: #64748b;
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-text: #1e293b;
+  --color-text-muted: #64748b;
+  --color-border: #e2e8f0;
+}
+
+.dark {
+  --color-primary: #38bdf8;
+  --color-secondary: #94a3b8;
+  --color-background: #0f172a;
+  --color-surface: #1e293b;
+  --color-text: #f1f5f9;
+  --color-text-muted: #94a3b8;
+  --color-border: #334155;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-secondary);
+}
+
+/* Drag region for macOS */
+.drag-region {
+  -webkit-app-region: drag;
+}
+
+.no-drag {
+  -webkit-app-region: no-drag;
+}
+
+/* Slide preview aspect ratio */
+.slide-preview {
+  aspect-ratio: 16 / 9;
+}
+
+/* Chat message styles */
+.chat-message {
+  @apply rounded-lg px-4 py-3;
+}
+
+.chat-message-user {
+  @apply bg-blue-500 text-white ml-auto;
+  max-width: 85%;
+}
+
+.chat-message-assistant {
+  @apply bg-slate-100 dark:bg-slate-800 mr-auto;
+  max-width: 85%;
+}
+
+/* Prose styles for markdown */
+.prose-sm pre {
+  @apply bg-slate-900 text-slate-100 rounded-lg p-4 overflow-x-auto;
+}
+
+.prose-sm code {
+  @apply bg-slate-200 dark:bg-slate-700 px-1 py-0.5 rounded text-sm;
+}
+
+.prose-sm pre code {
+  @apply bg-transparent p-0;
+}
+
+/* Animation for streaming text */
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+.cursor-blink::after {
+  content: '|';
+  animation: blink 1s infinite;
+}
+
+/* Layout transitions */
+.slide-panel-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.slide-panel-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 200ms, transform 200ms;
+}
+
+.slide-panel-exit {
+  opacity: 1;
+}
+
+.slide-panel-exit-active {
+  opacity: 0;
+  transition: opacity 200ms;
+}
