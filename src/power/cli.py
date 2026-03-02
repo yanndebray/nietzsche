@@ -489,6 +489,83 @@ def remove(pptx_file: str, slide_index: int, output: str):
         sys.exit(1)
 
 
+@main.command()
+@click.argument("pptx_file", type=click.Path(exists=True))
+@click.option("-o", "--output", required=True, type=click.Path(), help="Output YAML spec file")
+@click.option("--pptx", "output_pptx", type=click.Path(), help="Also generate native PPTX from the spec")
+@click.option("-t", "--template", type=click.Path(exists=True), help="Template for PPTX generation")
+@click.option("--provider", default="claude", help="Vision AI provider (default: claude)")
+@click.option("--images-dir", type=click.Path(), help="Directory to save extracted images")
+@click.option("--title", default=None, help="Override presentation title")
+def reverse(
+    pptx_file: str,
+    output: str,
+    output_pptx: str | None,
+    template: str | None,
+    provider: str,
+    images_dir: str | None,
+    title: str | None,
+):
+    """Reverse-engineer an image-only PPTX into an editable YAML spec.
+
+    Extracts slide images, uses vision AI to interpret content, and produces
+    a YAML file compatible with 'power generate'.
+
+    Requires an ANTHROPIC_API_KEY environment variable (or install anthropic SDK).
+
+    Examples:
+
+        power reverse slides.pptx -o slides.yaml
+
+        power reverse slides.pptx -o slides.yaml --pptx output.pptx
+
+        power reverse slides.pptx -o slides.yaml --images-dir extracted/
+    """
+    try:
+        from power.reverse import reverse_presentation
+    except ImportError as e:
+        console.print(
+            f"[red]Error:[/red] {e}\n"
+            "Install reverse dependencies with: pip install 'nietzsche[reverse]'"
+        )
+        sys.exit(1)
+
+    try:
+
+        def on_progress(step: int, total: int, message: str) -> None:
+            click.echo(message)
+
+        yaml_path = reverse_presentation(
+            pptx_path=pptx_file,
+            output_yaml=output,
+            images_dir=images_dir,
+            provider_name=provider,
+            presentation_title=title,
+            progress_callback=on_progress,
+        )
+
+        console.print(f"[green]YAML spec written:[/green] {yaml_path}")
+
+        # Optionally generate native PPTX
+        if output_pptx:
+            console.print(f"[dim]Generating native PPTX...[/dim]")
+            input_path = Path(output)
+            with open(input_path) as f:
+                spec = yaml.safe_load(f)
+
+            ppt = PowerPresentation(template=template)
+            if template:
+                ppt.clear_slides()
+            _build_from_spec(ppt, spec)
+            ppt.save(output_pptx)
+            console.print(f"[green]Native PPTX generated:[/green] {output_pptx}")
+            console.print(f"  Slides: {ppt.slide_count}")
+
+    except Exception as e:
+        console.print(f"[red]Error:[/red] {e}")
+        sys.exit(1)
+
+
 @main.command(name="add")
 @click.argument("pptx_file", type=click.Path(exists=True))
 @click.option("-o", "--output", required=True, help="Output file path")
